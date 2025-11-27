@@ -5,11 +5,14 @@ import Providers from "@/components/providers";
 import Navbar from "@/components/layout/navbar";
 import Sidebar from "@/components/layout/sidebar";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "MVP Task Tracker",
-  description: "Simple task tracker for SMBs",
+  description: "Simple task management for teams",
 };
 
 export default function RootLayout({
@@ -18,14 +21,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="ru">
+      <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navbar />
             <div className="flex flex-1">
               <Sidebar />
-              <main className="flex-1 p-6 bg-gray-50 dark:bg-gray-900">
+              <main className="flex-1 p-6 bg-muted/30">
                 {children}
               </main>
             </div>

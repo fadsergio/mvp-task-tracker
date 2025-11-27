@@ -67,6 +67,6 @@ NODE_ENV=production
 Если у вас настроен SSH ключ для GitHub, используйте SSH URL:
 
 ```bash
-git remote add origin git@github.com:YOUR_USERNAME/mvp-task-tracker.git
+git remote add origin https://github.com/fadsergio/mvp-task-tracker.git
 git push -u origin main
 ```
