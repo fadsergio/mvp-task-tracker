@@ -70,21 +70,22 @@ export default function Home() {
       <div>
         <h2 className="text-lg font-semibold mb-4">Быстрые действия</h2>
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm">
+          <Link href="/tasks" className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm">
             <Plus className="w-4 h-4" />
             Новая задача
-          </button>
+          </Link>
           <Link href="/reports" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-border rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium shadow-sm">
             <FileText className="w-4 h-4" />
             Создать отчет
           </Link>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-border rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium shadow-sm">
+          <Link href="/files" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-border rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium shadow-sm">
             <Upload className="w-4 h-4" />
             Загрузить файл
-          </button>
+          </Link>
         </div>
       </div>
     </div>
   );
 }
+
 

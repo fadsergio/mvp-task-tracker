@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PRISMA_SERVICE } from '../prisma/prisma.module';
-import { CustomPrismaClient } from '../prisma/prisma.extension'; // Need to export type
+import type { CustomPrismaClient } from '../prisma/prisma.extension'; // Need to export type
 
 @Injectable()
 export class UsersService {

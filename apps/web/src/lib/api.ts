@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 
 export const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -150,5 +150,68 @@ export const reportsApi = {
     },
 };
 
-export default api;
+// Clients API
+export const clientsApi = {
+    getAll: async () => {
+        const { data } = await api.get('/clients');
+        return data;
+    },
 
+    create: async (data: { name: string; email?: string; phone?: string }) => {
+        const response = await api.post('/clients', data);
+        return response.data;
+    },
+
+    update: async (id: string, data: { name?: string; email?: string; phone?: string }) => {
+        const response = await api.patch(`/clients/${id}`, data);
+        return response.data;
+    },
+};
+
+// Users API
+export const usersApi = {
+    getAll: async () => {
+        const { data } = await api.get('/users');
+        return data;
+    },
+
+    invite: async (data: { email: string; role: string; name?: string }) => {
+        // В MVP используем register, так как invite флоу сложнее
+        const { data: response } = await api.post('/auth/register', {
+            ...data,
+            password: 'Password123!', // Временный пароль для MVP
+            tenantId: 'default',
+        });
+        return response;
+    },
+
+    updateRole: async (id: string, role: string) => {
+        const { data } = await api.patch(`/users/${id}/role`, { role });
+        return data;
+    },
+
+    update: async (id: string, data: { name?: string; email?: string; avatar?: string }) => {
+        const response = await api.patch(`/users/${id}`, data);
+        return response.data;
+    },
+};
+
+// Tasks API
+export const tasksApi = {
+    getAll: async () => {
+        const { data } = await api.get('/tasks');
+        return data;
+    },
+
+    create: async (data: any) => {
+        const response = await api.post('/tasks', data);
+        return response.data;
+    },
+
+    update: async (id: string, data: any) => {
+        const response = await api.patch(`/tasks/${id}`, data);
+        return response.data;
+    },
+};
+
+export default api;

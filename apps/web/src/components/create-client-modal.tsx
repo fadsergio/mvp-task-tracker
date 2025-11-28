@@ -1,0 +1,124 @@
+'use client';
+
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { clientsApi } from '@/lib/api';
+import { X, Loader2 } from 'lucide-react';
+
+interface CreateClientModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function CreateClientModal({ isOpen, onClose }: CreateClientModalProps) {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [error, setError] = useState('');
+
+    const queryClient = useQueryClient();
+
+    const createClientMutation = useMutation({
+        mutationFn: clientsApi.create,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['clients'] });
+            onClose();
+            setName('');
+            setEmail('');
+            setPhone('');
+            setError('');
+        },
+        onError: (err: any) => {
+            setError(err.response?.data?.message || 'Failed to create client');
+        },
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!name.trim()) return;
+        createClientMutation.mutate({ name, email, phone });
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
+                <h2 className="text-xl font-bold mb-4 text-foreground">Новый клиент</h2>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                            Название компании *
+                        </label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="Acme Corp"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="contact@acme.com"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                            Телефон
+                        </label>
+                        <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="+7 (999) 000-00-00"
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 text-sm font-medium text-foreground bg-secondary hover:bg-secondary/80 rounded-md transition-colors"
+                        >
+                            Отмена
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={createClientMutation.isPending}
+                            className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors flex items-center gap-2"
+                        >
+                            {createClientMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Создать
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}

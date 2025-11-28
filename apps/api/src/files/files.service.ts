@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PRISMA_SERVICE } from '../prisma/prisma.module';
-import { CustomPrismaClient } from '../prisma/prisma.extension';
+import type { CustomPrismaClient } from '../prisma/prisma.extension';
 import { S3Service } from './s3.service';
 import { v4 as uuidv4 } from 'uuid';
 

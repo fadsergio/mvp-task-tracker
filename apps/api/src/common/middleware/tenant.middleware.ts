@@ -18,7 +18,7 @@ export class TenantMiddleware implements NestMiddleware {
 
             if (tenantId) {
                 ContextService.set('tenantId', tenantId);
-                req['tenantId'] = tenantId; // Keep for backward compatibility if needed
+                (req as any)['tenantId'] = tenantId; // Keep for backward compatibility if needed
             }
 
             // Note: We don't throw here because some endpoints might be public or tenant-agnostic (like login)
