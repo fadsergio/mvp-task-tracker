@@ -7,12 +7,15 @@ import { Plus, LayoutList, Kanban, Loader2, Calendar, User as UserIcon, Edit } f
 import TaskModal from '@/components/task-modal';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useTaskSettings } from '@/hooks/use-task-settings';
+import TaskTable from '@/components/task-table';
 
 export default function TasksPage() {
-    const [view, setView] = useState<'table' | 'kanban'>('kanban');
+    const [view, setView] = useState<'table' | 'kanban'>('table');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const queryClient = useQueryClient();
+    const { settings } = useTaskSettings();
 
     const { data: tasks, isLoading, error } = useQuery({
         queryKey: ['tasks'],
@@ -26,15 +29,6 @@ export default function TasksPage() {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         },
     });
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case 'HIGH': return 'text-red-500 font-medium';
-            case 'MEDIUM': return 'text-yellow-600 font-medium';
-            case 'LOW': return 'text-green-500 font-medium';
-            default: return 'text-gray-500';
-        }
-    };
 
     const getStatusLabel = (status: string) => {
         switch (status) {
@@ -88,6 +82,19 @@ export default function TasksPage() {
         );
     }
 
+    // Determine available views based on settings
+    const availableViews = [];
+    if (settings.enabledViews?.table ?? true) availableViews.push('table');
+    if (settings.enabledViews?.kanban ?? true) availableViews.push('kanban');
+
+    // If current view is disabled, switch to the first available view
+    if (view === 'table' && !(settings.enabledViews?.table ?? true)) {
+        if (availableViews.length > 0) setView(availableViews[0] as any);
+    }
+    if (view === 'kanban' && !(settings.enabledViews?.kanban ?? true)) {
+        if (availableViews.length > 0) setView(availableViews[0] as any);
+    }
+
     return (
         <div className="space-y-6">
             <header className="flex items-center justify-between">
@@ -97,18 +104,26 @@ export default function TasksPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex bg-muted p-1 rounded-lg">
-                        <button
-                            onClick={() => setView('table')}
-                            className={`p-2 rounded-md transition-all ${view === 'table' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
-                        >
-                            <LayoutList className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => setView('kanban')}
-                            className={`p-2 rounded-md transition-all ${view === 'kanban' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
-                        >
-                            <Kanban className="w-4 h-4" />
-                        </button>
+                        {(settings.enabledViews?.table ?? true) && (
+                            <button
+                                onClick={() => setView('table')}
+                                disabled={availableViews.length === 1}
+                                className={`p-2 rounded-md transition-all ${view === 'table' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'} ${availableViews.length === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title="Режим Список"
+                            >
+                                <LayoutList className="w-4 h-4" />
+                            </button>
+                        )}
+                        {(settings.enabledViews?.kanban ?? true) && (
+                            <button
+                                onClick={() => setView('kanban')}
+                                disabled={availableViews.length === 1}
+                                className={`p-2 rounded-md transition-all ${view === 'kanban' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'} ${availableViews.length === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title="Режим Канбан"
+                            >
+                                <Kanban className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
@@ -121,56 +136,12 @@ export default function TasksPage() {
             </header>
 
             {view === 'table' ? (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-border">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-muted/50 border-b border-border">
-                            <tr>
-                                <th className="px-6 py-3 font-medium text-muted-foreground">Название</th>
-                                <th className="px-6 py-3 font-medium text-muted-foreground">Статус</th>
-                                <th className="px-6 py-3 font-medium text-muted-foreground">Приоритет</th>
-                                <th className="px-6 py-3 font-medium text-muted-foreground">Исполнитель</th>
-                                <th className="px-6 py-3 font-medium text-muted-foreground">Срок</th>
-                                <th className="px-6 py-3 font-medium text-muted-foreground"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                            {tasks?.map((task: any) => (
-                                <tr key={task.id} className="hover:bg-muted/50 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-foreground">{task.title}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs font-medium">
-                                            {getStatusLabel(task.status)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={getPriorityColor(task.priority)}>{task.priority}</span>
-                                    </td>
-                                    <td className="px-6 py-4 text-muted-foreground">
-                                        {task.assignees?.[0]?.name || 'Не назначен'}
-                                    </td>
-                                    <td className="px-6 py-4 text-muted-foreground">
-                                        {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: ru }) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <button
-                                            onClick={() => handleEdit(task)}
-                                            className="text-primary hover:text-primary/80 transition-colors"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {tasks?.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                                        Задач пока нет
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <TaskTable
+                    tasks={tasks || []}
+                    layout={settings.layout}
+                    taskBlocks={settings.taskBlocks}
+                    onEdit={handleEdit}
+                />
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-12rem)] overflow-x-auto">
                     {['NEW', 'IN_PROGRESS', 'REVIEW', 'DONE'].map((status) => (
@@ -242,4 +213,3 @@ export default function TasksPage() {
         </div>
     );
 }
-

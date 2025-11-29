@@ -16,8 +16,9 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState('MEDIUM');
     const [clientId, setClientId] = useState('');
-    const [assigneeId, setAssigneeId] = useState('');
+    const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
     const [dueDate, setDueDate] = useState('');
+    const [spentTime, setSpentTime] = useState(0);
     const [error, setError] = useState('');
 
     const queryClient = useQueryClient();
@@ -30,16 +31,18 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
             setDescription(task.description || '');
             setPriority(task.priority || 'MEDIUM');
             setClientId(task.clientId || '');
-            setAssigneeId(task.assignees?.[0]?.id || '');
+            setAssigneeIds(task.assignees?.map((u: any) => u.id) || []);
             setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+            setSpentTime(task.spentTime || 0);
         } else {
             // Сброс при создании
             setTitle('');
             setDescription('');
             setPriority('MEDIUM');
             setClientId('');
-            setAssigneeId('');
+            setAssigneeIds([]);
             setDueDate('');
+            setSpentTime(0);
         }
         setError('');
     }, [task, isOpen]);
@@ -73,10 +76,19 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
             description,
             priority,
             clientId: clientId || undefined,
-            assigneeId: assigneeId || undefined,
+            assigneeIds,
             dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+            spentTime: Number(spentTime),
             status: task?.status || 'NEW'
         });
+    };
+
+    const toggleAssignee = (userId: string) => {
+        setAssigneeIds(prev =>
+            prev.includes(userId)
+                ? prev.filter(id => id !== userId)
+                : [...prev, userId]
+        );
     };
 
     if (!isOpen) return null;
@@ -156,11 +168,25 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
                                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-foreground mb-1">
+                                Затрачено часов
+                            </label>
+                            <input
+                                type="number"
+                                step="0.25"
+                                min="0"
+                                value={spentTime}
+                                onChange={(e) => setSpentTime(Number(e.target.value))}
+                                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                        </div>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">
-                            Клиент
+                            Проект
                         </label>
                         <select
                             value={clientId}
@@ -178,20 +204,33 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
 
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">
-                            Исполнитель
+                            Участники
                         </label>
-                        <select
-                            value={assigneeId}
-                            onChange={(e) => setAssigneeId(e.target.value)}
-                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                        >
-                            <option value="">Не назначен</option>
+                        <div className="w-full px-3 py-2 border border-border rounded-md bg-background h-40 overflow-y-auto space-y-1">
                             {users?.map((user: any) => (
-                                <option key={user.id} value={user.id}>
-                                    {user.name || user.email}
-                                </option>
+                                <label key={user.id} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded cursor-pointer transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={assigneeIds.includes(user.id)}
+                                        onChange={() => toggleAssignee(user.id)}
+                                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[10px] overflow-hidden border border-border">
+                                            {user.avatar ? (
+                                                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span>{user.name?.[0] || 'U'}</span>
+                                            )}
+                                        </div>
+                                        <span className="text-sm text-foreground">{user.name || user.email}</span>
+                                    </div>
+                                </label>
                             ))}
-                        </select>
+                            {(!users || users.length === 0) && (
+                                <p className="text-sm text-muted-foreground p-2">Нет доступных участников</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-3 mt-6">

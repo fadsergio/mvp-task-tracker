@@ -20,7 +20,7 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="h-16 border-b border-border flex items-center justify-between px-6 bg-background">
+            <nav className="h-16 border-b border-border/40 flex items-center justify-between px-6 glass">
                 <div className="flex items-center gap-4">
                     <Link href="/" className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
                         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
@@ -38,24 +38,26 @@ export default function Navbar() {
                                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
                             <div className="flex items-center gap-3 pl-4 border-l border-border">
-                                <div className="text-right hidden sm:block">
-                                    <p className="text-sm font-medium text-foreground">{user?.name || 'User'}</p>
-                                    <p className="text-xs text-muted-foreground">{user?.email}</p>
-                                </div>
                                 <button
                                     onClick={() => setIsProfileModalOpen(true)}
-                                    className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors overflow-hidden"
-                                    title="Редактировать профиль"
+                                    className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity text-left group"
                                 >
-                                    {(user as any)?.avatar ? (
-                                        <img
-                                            src={(user as any).avatar}
-                                            alt="Profile"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <User className="w-5 h-5 text-muted-foreground" />
-                                    )}
+                                    <div className="hidden sm:block">
+                                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{user?.name || 'User'}</p>
+                                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border group-hover:border-primary transition-colors">
+                                        {user?.avatar ? (
+                                            <img
+                                                src={user.avatar}
+                                                alt={user.name || 'Profile'}
+                                                className="w-full h-full object-cover"
+                                                key={user.avatar}
+                                            />
+                                        ) : (
+                                            <User className="w-6 h-6 text-muted-foreground" />
+                                        )}
+                                    </div>
                                 </button>
                                 <button
                                     onClick={handleLogout}
@@ -102,4 +104,3 @@ function CheckSquare({ className }: { className?: string }) {
         </svg>
     );
 }
-

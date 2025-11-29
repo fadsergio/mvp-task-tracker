@@ -175,6 +175,11 @@ export const usersApi = {
         return data;
     },
 
+    getOne: async (id: string) => {
+        const { data } = await api.get(`/users/${id}`);
+        return data;
+    },
+
     invite: async (data: { email: string; role: string; name?: string }) => {
         // В MVP используем register, так как invite флоу сложнее
         const { data: response } = await api.post('/auth/register', {
@@ -211,6 +216,13 @@ export const tasksApi = {
     update: async (id: string, data: any) => {
         const response = await api.patch(`/tasks/${id}`, data);
         return response.data;
+    },
+};
+
+export const dashboardApi = {
+    getStats: async () => {
+        const { data } = await api.get('/dashboard/stats');
+        return data;
     },
 };
 

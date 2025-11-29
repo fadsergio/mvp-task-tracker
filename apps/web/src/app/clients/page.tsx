@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { clientsApi } from '@/lib/api';
-import { Building2, Plus, Mail, Phone, Loader2, Edit } from 'lucide-react';
+import { Building2, Plus, Mail, Phone, Loader2, Edit, LayoutGrid, List } from 'lucide-react';
 import ClientModal from '@/components/client-modal';
 
 export default function ClientsPage() {
@@ -25,6 +25,8 @@ export default function ClientsPage() {
         setSelectedClient(null);
     };
 
+    const [view, setView] = useState<'grid' | 'list'>('grid');
+
     return (
         <div className="space-y-6">
             <header className="flex items-center justify-between">
@@ -32,13 +34,29 @@ export default function ClientsPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">Клиенты</h1>
                     <p className="text-muted-foreground">Управление клиентами и проектами.</p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 transition-colors font-medium"
-                >
-                    <Plus className="w-4 h-4" />
-                    Новый клиент
-                </button>
+                <div className="flex items-center gap-2">
+                    <div className="flex bg-muted p-1 rounded-lg">
+                        <button
+                            onClick={() => setView('grid')}
+                            className={`p-2 rounded-md transition-all ${view === 'grid' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                        >
+                            <LayoutGrid className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setView('list')}
+                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                        >
+                            <List className="w-4 h-4" />
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 transition-colors font-medium"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Новый клиент
+                    </button>
+                </div>
             </header>
 
             {isLoading ? (
@@ -46,51 +64,86 @@ export default function ClientsPage() {
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
             ) : error ? (
-                <div className="p-4 bg-red-50 text-red-600 rounded-md">
+                <div className="p-4 bg-red-500/10 text-red-600 border border-red-500/20 rounded-md">
                     Ошибка загрузки клиентов. Попробуйте обновить страницу.
                 </div>
             ) : clients?.length === 0 ? (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-border p-8 text-center">
-                    <div className="mx-auto w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4">
-                        <Building2 className="w-6 h-6 text-blue-600" />
+                <div className="glass-card rounded-lg p-12 text-center">
+                    <div className="mx-auto w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
+                        <Building2 className="w-8 h-8 text-blue-500" />
                     </div>
-                    <h3 className="text-lg font-medium text-foreground">Нет клиентов</h3>
+                    <h3 className="text-xl font-medium text-foreground">Нет клиентов</h3>
                     <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
                         Создайте первого клиента, чтобы начать отслеживать задачи и время.
                     </p>
                 </div>
-            ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            ) : view === 'grid' ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {clients.map((client: any) => (
-                        <div key={client.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow group relative">
+                        <div key={client.id} className="glass-card rounded-xl p-6 hover:scale-[1.02] transition-all duration-200 group relative">
                             <button
                                 onClick={() => handleEdit(client)}
-                                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary hover:text-primary/80"
+                                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
                             >
                                 <Edit className="w-4 h-4" />
                             </button>
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                    <Building2 className="w-6 h-6 text-blue-600" />
+                            <div className="flex items-start justify-between mb-6">
+                                <div className="p-3 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl border border-blue-500/20">
+                                    <Building2 className="w-6 h-6 text-blue-500" />
                                 </div>
                             </div>
-                            <h3 className="text-lg font-semibold text-foreground mb-2 pr-8">{client.name}</h3>
-                            <div className="space-y-2 text-sm text-muted-foreground">
+                            <h3 className="text-lg font-semibold text-foreground mb-3 pr-8">{client.name}</h3>
+                            <div className="space-y-2.5 text-sm text-muted-foreground">
                                 {client.contact?.email && (
-                                    <div className="flex items-center gap-2">
-                                        <Mail className="w-4 h-4" />
+                                    <div className="flex items-center gap-2.5">
+                                        <Mail className="w-4 h-4 text-primary/70" />
                                         {client.contact.email}
                                     </div>
                                 )}
                                 {client.contact?.phone && (
-                                    <div className="flex items-center gap-2">
-                                        <Phone className="w-4 h-4" />
+                                    <div className="flex items-center gap-2.5">
+                                        <Phone className="w-4 h-4 text-primary/70" />
                                         {client.contact.phone}
                                     </div>
                                 )}
                             </div>
                         </div>
                     ))}
+                </div>
+            ) : (
+                <div className="glass-card rounded-xl overflow-hidden">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-muted/30 border-b border-border/40">
+                            <tr>
+                                <th className="px-6 py-4 font-medium text-muted-foreground">Название</th>
+                                <th className="px-6 py-4 font-medium text-muted-foreground">Email</th>
+                                <th className="px-6 py-4 font-medium text-muted-foreground">Телефон</th>
+                                <th className="px-6 py-4 font-medium text-muted-foreground"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/40">
+                            {clients.map((client: any) => (
+                                <tr key={client.id} className="hover:bg-muted/20 transition-colors group">
+                                    <td className="px-6 py-4 font-medium text-foreground flex items-center gap-3">
+                                        <div className="p-2 bg-blue-500/10 rounded-lg">
+                                            <Building2 className="w-4 h-4 text-blue-500" />
+                                        </div>
+                                        {client.name}
+                                    </td>
+                                    <td className="px-6 py-4 text-muted-foreground">{client.contact?.email || '-'}</td>
+                                    <td className="px-6 py-4 text-muted-foreground">{client.contact?.phone || '-'}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <button
+                                            onClick={() => handleEdit(client)}
+                                            className="text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
 

@@ -3,9 +3,15 @@
 import { useAuth } from '@/contexts/auth-context';
 import { Plus, Upload, FileText, Clock, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardApi } from '@/lib/api';
 
 export default function Home() {
   const { user } = useAuth();
+  const { data: stats } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: dashboardApi.getStats,
+  });
 
   return (
     <div className="space-y-8">
@@ -20,46 +26,46 @@ export default function Home() {
 
       {/* Quick Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-border">
+        <div className="p-6 glass-card rounded-xl hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Всего задач</p>
-              <h3 className="text-2xl font-bold mt-1">12</h3>
+              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats?.totalTasks || 0}</h3>
             </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600">
+            <div className="p-3 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-full text-blue-500 border border-blue-500/20">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
         </div>
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-border">
+        <div className="p-6 glass-card rounded-xl hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">В работе</p>
-              <h3 className="text-2xl font-bold mt-1">4</h3>
+              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats?.activeTasks || 0}</h3>
             </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full text-yellow-600">
+            <div className="p-3 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-full text-yellow-500 border border-yellow-500/20">
               <Clock className="w-5 h-5" />
             </div>
           </div>
         </div>
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-border">
+        <div className="p-6 glass-card rounded-xl hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Часов сегодня</p>
-              <h3 className="text-2xl font-bold mt-1">6.5</h3>
+              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats?.totalHoursToday || 0}</h3>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full text-green-600">
+            <div className="p-3 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-full text-green-500 border border-green-500/20">
               <Clock className="w-5 h-5" />
             </div>
           </div>
         </div>
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-border">
+        <div className="p-6 glass-card rounded-xl hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Отчеты</p>
-              <h3 className="text-2xl font-bold mt-1">2</h3>
+              <p className="text-sm font-medium text-muted-foreground">Клиенты</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats?.totalClients || 0}</h3>
             </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full text-purple-600">
+            <div className="p-3 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-full text-purple-500 border border-purple-500/20">
               <FileText className="w-5 h-5" />
             </div>
           </div>

@@ -53,7 +53,7 @@ const compressImage = (file: File): Promise<string> => {
 };
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
-    const { user: currentUser } = useAuth();
+    const { user: currentUser, updateUser } = useAuth();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState('');
@@ -75,8 +75,13 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         mutationFn: (data: any) => {
             return usersApi.update((currentUser as any).userId || (currentUser as any).id, data);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
+            // Update local auth context
+            updateUser({
+                name: data.name,
+                avatar: data.avatar
+            });
             onClose();
         },
         onError: (err: any) => {

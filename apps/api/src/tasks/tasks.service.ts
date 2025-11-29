@@ -7,13 +7,18 @@ export class TasksService {
     constructor(private prisma: PrismaService) { }
 
     create(data: any, tenantId: string, userId: string) {
-        const { assigneeId, ...rest } = data;
+        const { assigneeIds, assigneeId, ...rest } = data;
+        // Support both single assigneeId (legacy) and assigneeIds array
+        const idsToConnect = assigneeIds || (assigneeId ? [assigneeId] : []);
+
         return this.prisma.task.create({
             data: {
                 ...rest,
                 tenantId,
                 createdById: userId,
-                assignees: assigneeId ? { connect: { id: assigneeId } } : undefined,
+                assignees: idsToConnect.length > 0 ? {
+                    connect: idsToConnect.map((id: string) => ({ id }))
+                } : undefined,
             },
         });
     }
@@ -21,7 +26,7 @@ export class TasksService {
     findAll(tenantId: string) {
         return this.prisma.task.findMany({
             where: { tenantId },
-            include: { assignees: true },
+            include: { assignees: true, client: true },
         });
     }
 
@@ -39,14 +44,17 @@ export class TasksService {
             throw new Error('Task not found or access denied');
         }
 
-        const { assigneeId, ...rest } = data;
+        const { assigneeIds, assigneeId, ...rest } = data;
+
+        // Support both single assigneeId (legacy) and assigneeIds array
+        const idsToConnect = assigneeIds !== undefined ? assigneeIds : (assigneeId !== undefined ? [assigneeId] : undefined);
 
         return this.prisma.task.update({
             where: { id },
             data: {
                 ...rest,
-                assignees: assigneeId !== undefined
-                    ? (assigneeId ? { set: [{ id: assigneeId }] } : { set: [] })
+                assignees: idsToConnect !== undefined
+                    ? { set: idsToConnect.map((id: string) => ({ id })) }
                     : undefined,
             },
         });

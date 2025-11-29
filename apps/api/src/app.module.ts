@@ -12,6 +12,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { TimeEntriesModule } from './time-entries/time-entries.module';
 import { FilesModule } from './files/files.module';
 import { ReportsModule } from './reports/reports.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ReportsModule } from './reports/reports.module';
     TimeEntriesModule,
     FilesModule,
     ReportsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [

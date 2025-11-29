@@ -1,12 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi } from '@/lib/api';
+import { authApi, usersApi } from '@/lib/api';
 
 interface User {
     id: string;
     email: string;
     name?: string;
+    avatar?: string;
     role: string;
     tenantId: string;
 }
@@ -17,6 +18,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     register: (email: string, password: string, name: string) => Promise<void>;
     logout: () => Promise<void>;
+    updateUser: (userData: Partial<User>) => void;
     isAuthenticated: boolean;
 }
 
@@ -28,13 +30,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         // Проверяем наличие токена при загрузке
-        const checkAuth = () => {
+        const checkAuth = async () => {
             const token = localStorage.getItem('access_token');
-            const userStr = localStorage.getItem('user');
+            const userId = localStorage.getItem('user_id');
 
-            if (token && userStr) {
+            if (token) {
                 try {
-                    setUser(JSON.parse(userStr));
+                    // Сначала пробуем восстановить из localStorage для быстрого отображения
+                    const userStr = localStorage.getItem('user');
+                    if (userStr) {
+                        setUser(JSON.parse(userStr));
+                    }
+
+                    // Затем делаем запрос за свежими данными, если есть ID
+                    if (userId) {
+                        try {
+                            const userData = await usersApi.getOne(userId);
+                            // Обновляем стейт и localStorage свежими данными
+                            const currentUser = userStr ? JSON.parse(userStr) : {};
+                            const updatedUser = { ...currentUser, ...userData };
+
+                            setUser(updatedUser);
+                            localStorage.setItem('user', JSON.stringify(updatedUser));
+                        } catch (apiError) {
+                            console.error('Failed to fetch fresh user profile:', apiError);
+                        }
+                    }
                 } catch (error) {
                     console.error('Failed to parse user data:', error);
                     localStorage.removeItem('user');
@@ -62,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 role: payload.role || 'EXECUTOR',
                 tenantId: payload.tenantId,
                 name: payload.name,
+                avatar: payload.avatar,
             };
 
             localStorage.setItem('user', JSON.stringify(userData));
@@ -88,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 role: payload.role || 'EXECUTOR',
                 tenantId: payload.tenantId,
                 name: payload.name || name,
+                avatar: payload.avatar,
             };
 
             localStorage.setItem('user', JSON.stringify(userData));
@@ -96,6 +119,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
             console.error('Registration failed:', error);
             throw error;
+        }
+    };
+
+    const updateUser = (userData: Partial<User>) => {
+        if (user) {
+            const updatedUser = { ...user, ...userData };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
         }
     };
 
@@ -124,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 register,
                 logout,
+                updateUser,
                 isAuthenticated: !!user,
             }}
         >
