@@ -2,36 +2,39 @@
 
 import { useTaskSettings } from '@/hooks/use-task-settings';
 import { LayoutList, Kanban, AlignVerticalJustifyStart, List } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { tasksApi } from '@/lib/api';
+import { useState } from 'react';
 
 export default function SettingsPage() {
     const { settings, updateSettings } = useTaskSettings();
+    const { t } = useTranslation();
 
     const columns = [
-        { id: 'status', label: 'Статус' },
-        { id: 'priority', label: 'Приоритет' },
-        { id: 'project', label: 'Проект' },
-        { id: 'participants', label: 'Участники' },
-        { id: 'dueDate', label: 'Срок' },
-        { id: 'spentTime', label: 'Затрачено времени' },
+        { id: 'priority', label: t('settings.col_priority') },
+        { id: 'project', label: t('settings.col_project') },
+        { id: 'participants', label: t('settings.col_participants') },
+        { id: 'dueDate', label: t('settings.col_dueDate') },
+        { id: 'spentTime', label: t('settings.col_spentTime') },
     ];
 
     const layouts = [
         {
             id: 'standard',
-            name: 'Стандартный',
-            description: 'Классический вид таблицы или канбан-доски.',
+            name: t('settings.layout_standard'),
+            description: t('settings.layout_standard_desc'),
             icon: LayoutList
         },
         {
             id: 'split',
-            name: 'Фокус (Split View)',
-            description: 'Список задач слева, детали выбранной задачи справа.',
+            name: t('settings.layout_split'),
+            description: t('settings.layout_split_desc'),
             icon: Kanban
         },
         {
             id: 'priority',
-            name: 'По блокам',
-            description: 'Задачи сгруппированы по настраиваемым блокам (статусам).',
+            name: t('settings.layout_blocks'),
+            description: t('settings.layout_blocks_desc'),
             icon: AlignVerticalJustifyStart
         }
     ];
@@ -39,35 +42,35 @@ export default function SettingsPage() {
     return (
         <div className="space-y-8 max-w-4xl mx-auto pb-12">
             <header>
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">Настройки</h1>
-                <p className="text-muted-foreground">Управление отображением задач.</p>
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('settings.title')}</h1>
+                <p className="text-muted-foreground">{t('settings.subtitle')}</p>
             </header>
 
             {/* Режимы отображения */}
             <section className="space-y-4">
                 <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                     <LayoutList className="w-5 h-5" />
-                    Режимы отображения задач
+                    {t('settings.view_modes')}
                 </h2>
                 <div className="glass-card p-6 rounded-xl border border-border/40">
                     <p className="text-sm text-muted-foreground mb-4">
-                        Выберите, какие режимы отображения будут доступны на странице задач. Должен быть активен хотя бы один режим.
+                        {t('settings.view_modes_desc')}
                     </p>
                     <div className="space-y-3">
                         <label className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all border-2 ${settings.enabledViews?.table ?? true
-                                ? 'bg-primary/5 border-primary/30 shadow-sm'
-                                : 'bg-muted/20 border-border/30 opacity-60'
+                            ? 'bg-primary/5 border-primary/30 shadow-sm'
+                            : 'bg-muted/20 border-border/30 opacity-60'
                             }`}>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-foreground">Режим "Список"</span>
+                                    <span className="text-sm font-semibold text-foreground">{t('settings.mode_list')}</span>
                                     {(settings.enabledViews?.table ?? true) && (
                                         <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
-                                            Активен
+                                            {t('settings.active')}
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1">Задачи группируются по настраиваемым блокам</p>
+                                <p className="text-xs text-muted-foreground mt-1">{t('settings.mode_list_desc')}</p>
                             </div>
                             <input
                                 type="checkbox"
@@ -85,19 +88,19 @@ export default function SettingsPage() {
                             />
                         </label>
                         <label className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all border-2 ${settings.enabledViews?.kanban ?? true
-                                ? 'bg-primary/5 border-primary/30 shadow-sm'
-                                : 'bg-muted/20 border-border/30 opacity-60'
+                            ? 'bg-primary/5 border-primary/30 shadow-sm'
+                            : 'bg-muted/20 border-border/30 opacity-60'
                             }`}>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-foreground">Режим "Канбан"</span>
+                                    <span className="text-sm font-semibold text-foreground">{t('settings.mode_kanban')}</span>
                                     {(settings.enabledViews?.kanban ?? true) && (
                                         <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
-                                            Активен
+                                            {t('settings.active')}
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1">Задачи отображаются в виде колонок по статусам</p>
+                                <p className="text-xs text-muted-foreground mt-1">{t('settings.mode_kanban_desc')}</p>
                             </div>
                             <input
                                 type="checkbox"
@@ -125,10 +128,10 @@ export default function SettingsPage() {
                         <div>
                             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                                 <LayoutList className="w-5 h-5" />
-                                Настройки режима "Список"
+                                {t('settings.list_settings')}
                             </h2>
                             <p className="text-sm text-muted-foreground mt-1">
-                                Эти настройки применяются только в режиме "Список"
+                                {t('settings.list_settings_desc')}
                             </p>
                         </div>
                     </section>
@@ -137,7 +140,7 @@ export default function SettingsPage() {
                     <section className="space-y-4 pl-6">
                         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                             <Kanban className="w-4 h-4" />
-                            Шаблон отображения
+                            {t('settings.layout_template')}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {layouts.map((layout) => (
@@ -145,8 +148,8 @@ export default function SettingsPage() {
                                     key={layout.id}
                                     onClick={() => updateSettings({ layout: layout.id as any })}
                                     className={`glass-card p-6 rounded-xl text-left transition-all hover:scale-[1.02] border-2 ${settings.layout === layout.id
-                                            ? 'border-primary bg-primary/5 shadow-sm'
-                                            : 'border-border/30 hover:border-primary/20'
+                                        ? 'border-primary bg-primary/5 shadow-sm'
+                                        : 'border-border/30 hover:border-primary/20'
                                         }`}
                                 >
                                     <div className="flex items-start justify-between mb-3">
@@ -155,7 +158,7 @@ export default function SettingsPage() {
                                         </div>
                                         {settings.layout === layout.id && (
                                             <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
-                                                Активен
+                                                {t('settings.active')}
                                             </span>
                                         )}
                                     </div>
@@ -170,7 +173,7 @@ export default function SettingsPage() {
                     <section className="space-y-4 pl-6">
                         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                             <List className="w-4 h-4" />
-                            Отображение колонок
+                            {t('settings.columns')}
                         </h3>
                         <div className="glass-card p-6 rounded-xl border border-border/40">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -194,104 +197,205 @@ export default function SettingsPage() {
                         </div>
                     </section>
 
-                    {/* Блоки задач */}
+                    {/* Кастомные колонки */}
                     <section className="space-y-4 pl-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                                <AlignVerticalJustifyStart className="w-4 h-4" />
-                                Блоки задач
+                                <List className="w-4 h-4" />
+                                Кастомные колонки
                             </h3>
                             <button
                                 onClick={() => updateSettings({
-                                    taskBlocks: [
-                                        ...settings.taskBlocks,
-                                        { id: crypto.randomUUID(), title: 'Новый блок', statuses: [], color: 'gray' }
+                                    customColumns: [
+                                        ...(settings.customColumns || []),
+                                        { id: crypto.randomUUID(), title: 'Новая колонка', type: 'text' }
                                     ]
                                 })}
                                 className="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
                             >
-                                Добавить блок
+                                Добавить колонку
                             </button>
                         </div>
 
                         <div className="space-y-4">
-                            {settings.taskBlocks.map((block, index) => (
-                                <div key={block.id} className="glass-card p-4 rounded-xl border border-border/40 space-y-4">
+                            {settings.customColumns?.map((column, index) => (
+                                <div key={column.id} className="glass-card p-4 rounded-xl border border-border/40 space-y-4">
                                     <div className="flex items-center gap-4">
                                         <input
                                             type="text"
-                                            value={block.title}
+                                            value={column.title}
                                             onChange={(e) => {
-                                                const newBlocks = [...settings.taskBlocks];
-                                                newBlocks[index].title = e.target.value;
-                                                updateSettings({ taskBlocks: newBlocks });
+                                                const newColumns = [...settings.customColumns];
+                                                newColumns[index].title = e.target.value;
+                                                updateSettings({ customColumns: newColumns });
                                             }}
                                             className="flex-1 bg-transparent border-b border-border focus:border-primary outline-none px-2 py-1 font-medium"
-                                            placeholder="Название блока"
+                                            placeholder="Название колонки"
                                         />
                                         <select
-                                            value={block.color}
+                                            value={column.type}
                                             onChange={(e) => {
-                                                const newBlocks = [...settings.taskBlocks];
-                                                newBlocks[index].color = e.target.value as any;
-                                                updateSettings({ taskBlocks: newBlocks });
+                                                const newColumns = [...settings.customColumns];
+                                                newColumns[index].type = e.target.value as any;
+                                                updateSettings({ customColumns: newColumns });
                                             }}
                                             className="bg-muted border border-border rounded-md px-2 py-1 text-sm"
                                         >
-                                            <option value="blue">Синий</option>
-                                            <option value="yellow">Желтый</option>
-                                            <option value="green">Зеленый</option>
-                                            <option value="red">Красный</option>
-                                            <option value="purple">Фиолетовый</option>
-                                            <option value="gray">Серый</option>
+                                            <option value="text">Текст</option>
+                                            <option value="number">Число</option>
+                                            <option value="date">Дата</option>
+                                            <option value="select">Выбор</option>
                                         </select>
                                         <button
                                             onClick={() => {
-                                                const newBlocks = settings.taskBlocks.filter(b => b.id !== block.id);
-                                                updateSettings({ taskBlocks: newBlocks });
+                                                const newColumns = settings.customColumns.filter(c => c.id !== column.id);
+                                                updateSettings({ customColumns: newColumns });
                                             }}
                                             className="text-red-500 hover:text-red-700 p-1"
-                                            title="Удалить блок"
+                                            title="Удалить"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
                                         </button>
                                     </div>
 
-                                    <div>
-                                        <p className="text-xs text-muted-foreground mb-2">Статусы в этом блоке:</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {[
-                                                { id: 'NEW', label: 'Новая' },
-                                                { id: 'IN_PROGRESS', label: 'В работе' },
-                                                { id: 'REVIEW', label: 'На проверке' },
-                                                { id: 'DONE', label: 'Готово' }
-                                            ].map((status) => (
-                                                <label key={status.id} className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={block.statuses.includes(status.id)}
-                                                        onChange={(e) => {
-                                                            const newBlocks = [...settings.taskBlocks];
-                                                            if (e.target.checked) {
-                                                                newBlocks[index].statuses.push(status.id);
-                                                            } else {
-                                                                newBlocks[index].statuses = newBlocks[index].statuses.filter(s => s !== status.id);
-                                                            }
-                                                            updateSettings({ taskBlocks: newBlocks });
-                                                        }}
-                                                        className="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4"
-                                                    />
-                                                    <span className="text-sm">{status.label}</span>
-                                                </label>
-                                            ))}
+                                    {column.type === 'select' && (
+                                        <div>
+                                            <p className="text-xs text-muted-foreground mb-2">Варианты выбора (через запятую)</p>
+                                            <input
+                                                type="text"
+                                                value={column.options?.join(', ') || ''}
+                                                onChange={(e) => {
+                                                    const newColumns = [...settings.customColumns];
+                                                    newColumns[index].options = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                                    updateSettings({ customColumns: newColumns });
+                                                }}
+                                                className="w-full bg-background border border-border rounded-md px-3 py-1.5 text-sm"
+                                                placeholder="Вариант 1, Вариант 2, Вариант 3"
+                                            />
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </section>
+
                 </>
             )}
+
+            {/* Импорт проектов */}
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-import"><path d="M12 3v12" /><path d="m8 11 4 4 4-4" /><path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4" /></svg>
+                    {t('settings.import_projects', 'Импорт задач')}
+                </h2>
+                <div className="glass-card p-6 rounded-xl border border-border/40">
+                    <p className="text-sm text-muted-foreground mb-4">
+                        {t('settings.import_desc', 'Загрузите файл JSON или CSV для импорта задач. Система автоматически распознает поля.')}
+                    </p>
+
+                    <div className="border-2 border-dashed border-border/50 rounded-xl p-8 text-center hover:bg-muted/30 transition-colors">
+                        <input
+                            type="file"
+                            accept=".json,.csv"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+
+                                try {
+                                    // @ts-ignore
+                                    const { tasksApi } = await import('@/lib/api');
+                                    await tasksApi.import(file);
+                                    alert('Задачи успешно импортированы!');
+                                    window.location.reload();
+                                } catch (error) {
+                                    console.error(error);
+                                    alert('Ошибка при импорте файла');
+                                }
+                            }}
+                            className="hidden"
+                            id="file-upload"
+                        />
+                        <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>
+                            </div>
+                            <span className="font-medium text-foreground">Нажмите для загрузки файла</span>
+                            <span className="text-xs text-muted-foreground">JSON или CSV</span>
+                        </label>
+                    </div>
+                    <div className="mt-4 text-xs text-muted-foreground">
+                        <p>Поддерживаемые поля: title, description, status, priority, assigneeEmail, dueDate, spentTime</p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Настройки таблицы */}
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                    <List className="w-5 h-5" />
+                    Настройки таблицы
+                </h2>
+                <div className="glass-card p-6 rounded-xl border border-border/40 space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                            Строк на странице
+                        </label>
+                        <select
+                            value={settings.tableSettings?.rowsPerPage || 25}
+                            onChange={(e) => updateSettings({
+                                tableSettings: {
+                                    ...settings.tableSettings,
+                                    rowsPerPage: parseInt(e.target.value) as 10 | 25 | 50 | 100,
+                                }
+                            })}
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            {/* Уведомления */}
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                    Уведомления
+                </h2>
+                <div className="glass-card p-6 rounded-xl border border-border/40 space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                        Настройки уведомлений (функция в разработке)
+                    </p>
+                    <div className="space-y-3 opacity-50 pointer-events-none">
+                        <label className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                disabled
+                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <span className="text-sm text-foreground">Уведомления о новых задачах</span>
+                        </label>
+                        <label className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                disabled
+                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <span className="text-sm text-foreground">Напоминания о дедлайнах</span>
+                        </label>
+                        <label className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                disabled
+                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <span className="text-sm text-foreground">Уведомления об упоминаниях</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }

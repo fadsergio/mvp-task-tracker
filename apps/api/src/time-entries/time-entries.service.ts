@@ -16,4 +16,16 @@ export class TimeEntriesService {
     findOne(id: string) {
         return this.prisma.timeEntry.findUnique({ where: { id } });
     }
+
+    findByTask(taskId: string) {
+        return this.prisma.timeEntry.findMany({
+            where: { taskId },
+            orderBy: { createdAt: 'desc' },
+            include: { user: true }
+        });
+    }
+
+    remove(id: string) {
+        return this.prisma.timeEntry.delete({ where: { id } });
+    }
 }

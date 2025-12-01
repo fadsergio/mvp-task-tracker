@@ -133,6 +133,8 @@ export const reportsApi = {
         groupBy?: 'client' | 'user';
         dateFrom?: string;
         dateTo?: string;
+        clientId?: string;
+        userId?: string;
     }) => {
         const response = await api.get('/reports/time', {
             params: { ...params, export: 'csv' },
@@ -144,6 +146,39 @@ export const reportsApi = {
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', `time-report-${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    },
+    getTaskReport: async (params: {
+        groupBy?: 'client' | 'status' | 'assignee';
+        dateFrom?: string;
+        dateTo?: string;
+        clientId?: string;
+        status?: string;
+        priority?: string;
+    }) => {
+        const { data } = await api.get('/reports/tasks', { params });
+        return data;
+    },
+
+    exportTaskReportCSV: async (params: {
+        groupBy?: 'client' | 'status' | 'assignee';
+        dateFrom?: string;
+        dateTo?: string;
+        clientId?: string;
+        status?: string;
+        priority?: string;
+    }) => {
+        const response = await api.get('/reports/tasks', {
+            params: { ...params, export: 'csv' },
+            responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `task-report-${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -217,12 +252,60 @@ export const tasksApi = {
         const response = await api.patch(`/tasks/${id}`, data);
         return response.data;
     },
+
+    import: async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const { data } = await api.post('/tasks/import', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return data;
+    },
 };
 
 export const dashboardApi = {
     getStats: async () => {
         const { data } = await api.get('/dashboard/stats');
         return data;
+    },
+};
+
+export const commentsApi = {
+    getByTask: async (taskId: string) => {
+        const { data } = await api.get(`/comments/task/${taskId}`);
+        return data;
+    },
+
+    create: async (commentData: { taskId: string; text: string; mentions?: string[]; fileIds?: string[] }) => {
+        const { data } = await api.post('/comments', commentData);
+        return data;
+    },
+
+    update: async (id: string, text: string) => {
+        const { data } = await api.patch(`/comments/${id}`, { text });
+        return data;
+    },
+
+    delete: async (id: string) => {
+        await api.delete(`/comments/${id}`);
+    },
+};
+
+export const timeEntriesApi = {
+    getByTask: async (taskId: string) => {
+        const { data } = await api.get(`/time-entries/task/${taskId}`);
+        return data;
+    },
+
+    create: async (data: { taskId: string; duration: number; startedAt?: string; description?: string }) => {
+        const { data: response } = await api.post('/time-entries', data);
+        return response;
+    },
+
+    delete: async (id: string) => {
+        await api.delete(`/time-entries/${id}`);
     },
 };
 

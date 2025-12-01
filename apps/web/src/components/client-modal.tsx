@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { clientsApi } from '@/lib/api';
 import { X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ClientModalProps {
     isOpen: boolean;
@@ -16,6 +17,7 @@ export default function ClientModal({ isOpen, onClose, client }: ClientModalProp
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [error, setError] = useState('');
+    const { t } = useTranslation();
 
     const queryClient = useQueryClient();
     const isEditMode = !!client;
@@ -65,7 +67,7 @@ export default function ClientModal({ isOpen, onClose, client }: ClientModalProp
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative border border-gray-200 dark:border-gray-700">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
@@ -73,7 +75,7 @@ export default function ClientModal({ isOpen, onClose, client }: ClientModalProp
                     <X className="w-5 h-5" />
                 </button>
 
-                <h2 className="text-xl font-bold mb-4 text-foreground">
+                <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
                     {isEditMode ? 'Редактировать клиента' : 'Новый клиент'}
                 </h2>
 
@@ -86,14 +88,14 @@ export default function ClientModal({ isOpen, onClose, client }: ClientModalProp
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">
-                            Название *
+                            Название компании *
                         </label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="ООО Компания"
+                            placeholder="ООО Ромашка"
                             required
                         />
                     </div>

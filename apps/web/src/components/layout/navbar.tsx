@@ -6,12 +6,19 @@ import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/theme-toggle';
 import ProfileModal from '@/components/profile-modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function Navbar() {
     const { user, logout, isAuthenticated } = useAuth();
     const router = useRouter();
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const { t } = useTranslation();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleLogout = async () => {
         await logout();
@@ -30,7 +37,7 @@ export default function Navbar() {
                     </Link>
                 </div>
                 <div className="flex items-center gap-4">
-                    {isAuthenticated ? (
+                    {mounted && (isAuthenticated ? (
                         <>
                             <ThemeToggle />
                             <button className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
@@ -40,7 +47,7 @@ export default function Navbar() {
                             <div className="flex items-center gap-3 pl-4 border-l border-border">
                                 <button
                                     onClick={() => setIsProfileModalOpen(true)}
-                                    className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity text-left group"
+                                    className="flex items-center gap-3 hover:opacity-80 transition-opacity text-left group"
                                 >
                                     <div className="hidden sm:block">
                                         <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{user?.name || 'User'}</p>
@@ -76,7 +83,7 @@ export default function Navbar() {
                             <LogIn className="w-4 h-4" />
                             Войти
                         </Link>
-                    )}
+                    ))}
                 </div>
             </nav>
             <ProfileModal

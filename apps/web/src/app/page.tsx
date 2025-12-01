@@ -40,17 +40,6 @@ export default function Home() {
         <div className="p-6 glass-card rounded-xl hover:scale-[1.02] transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">В работе</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats?.activeTasks || 0}</h3>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-full text-yellow-500 border border-yellow-500/20">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-        </div>
-        <div className="p-6 glass-card rounded-xl hover:scale-[1.02] transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div>
               <p className="text-sm font-medium text-muted-foreground">Часов сегодня</p>
               <h3 className="text-2xl font-bold mt-1 text-foreground">{stats?.totalHoursToday || 0}</h3>
             </div>

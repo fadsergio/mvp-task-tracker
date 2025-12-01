@@ -1,15 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { TasksService } from './tasks.service';
+import { ImportService } from './import.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
 export class TasksController {
-    constructor(private readonly tasksService: TasksService) { }
+    constructor(
+        private readonly tasksService: TasksService,
+        private readonly importService: ImportService
+    ) { }
 
     @Post()
     create(@Body() createTaskDto: any, @Req() req: any) {
         return this.tasksService.create(createTaskDto, req.user.tenantId, req.user.userId);
+    }
+
+    @Post('import')
+    @UseInterceptors(FileInterceptor('file'))
+    importTasks(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+        return this.importService.importFromFile(file, req.user.tenantId, req.user.userId);
     }
 
     @Get()

@@ -13,6 +13,7 @@ import { TimeEntriesModule } from './time-entries/time-entries.module';
 import { FilesModule } from './files/files.module';
 import { ReportsModule } from './reports/reports.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     FilesModule,
     ReportsModule,
     DashboardModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [

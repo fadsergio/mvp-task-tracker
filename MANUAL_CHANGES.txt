@@ -1,0 +1,12 @@
+Простое изменение для добавления подписей к кнопкам переключения режимов в TasksPage:
+
+1. В файле `apps/web/src/app/tasks/page.tsx` найти строки 111 и 121
+2. Изменить `p-2` на `px-3 py-2 flex items-center gap-2`
+3. После иконки добавить `<span className="text-sm font-medium">{t('tasks.view_list')}</span>` для кнопки списка
+4. После иконки добавить `<span className="text-sm font-medium">{t('tasks.view_kanban')}</span>` для кнопки канбан
+
+Для UserModal:
+1. В файле `apps/web/src/components/user-modal.tsx` строка 128
+2. Заменить `bg-white dark:bg-gray-800` на `bg-white border border-gray-200`
+3. Строка 131: убрать `dark:hover:text-gray-300`
+4. Строка 136: заменить `text-foreground` на `text-gray-900`

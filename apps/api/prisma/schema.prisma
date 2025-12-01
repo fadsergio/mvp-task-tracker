@@ -16,11 +16,13 @@ model User {
   hashedRefreshToken String?
   role       Role      @default(EXECUTOR)
   tenantId   String
+  settings   Json?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   tasks      Task[]    @relation("AssigneeTasks")
   timeEntries TimeEntry[]
   projects   Client[]  @relation("ProjectMembers")
+  comments   Comment[]
 }
 
 enum Role {
@@ -55,6 +57,8 @@ model Task {
   tenantId       String
   timeEntries    TimeEntry[]
   attachments    File[]      @relation("TaskFiles")
+  comments       Comment[]
+  customFields   Json?
   createdById    String
   spentTime      Float       @default(0)
   createdAt      DateTime    @default(now())
@@ -105,4 +109,18 @@ model File {
   task        Task?    @relation("TaskFiles", fields: [taskId], references: [id])
   tenantId    String
   createdAt   DateTime @default(now())
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  text        String
+  mentions    String[] @default([])
+  fileIds     String[] @default([])
+  tenantId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

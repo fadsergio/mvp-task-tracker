@@ -9,11 +9,17 @@ import ClientModal from '@/components/client-modal';
 export default function ClientsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<any>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const { data: clients, isLoading, error } = useQuery({
+    const { data: clientsData, isLoading, error } = useQuery({
         queryKey: ['clients'],
         queryFn: clientsApi.getAll,
     });
+
+    const clients = clientsData?.filter((client: any) =>
+        client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.contact?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleEdit = (client: any) => {
         setSelectedClient(client);
@@ -31,10 +37,19 @@ export default function ClientsPage() {
         <div className="space-y-6">
             <header className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Клиенты</h1>
-                    <p className="text-muted-foreground">Управление клиентами и проектами.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Клиенты</h1>
+                    <p className="text-gray-900">Управление клиентами и проектами.</p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Поиск клиентов..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-3 pr-4 py-2 border border-border rounded-md text-sm bg-background w-64 focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                    </div>
                     <div className="flex bg-muted p-1 rounded-lg">
                         <button
                             onClick={() => setView('grid')}
@@ -68,22 +83,22 @@ export default function ClientsPage() {
                     Ошибка загрузки клиентов. Попробуйте обновить страницу.
                 </div>
             ) : clients?.length === 0 ? (
-                <div className="glass-card rounded-lg p-12 text-center">
+                <div className="bg-gray-100 rounded-lg p-12 text-center">
                     <div className="mx-auto w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
                         <Building2 className="w-8 h-8 text-blue-500" />
                     </div>
-                    <h3 className="text-xl font-medium text-foreground">Нет клиентов</h3>
-                    <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
+                    <h3 className="text-xl font-medium text-gray-900">Нет клиентов</h3>
+                    <p className="text-gray-900 mt-2 max-w-sm mx-auto">
                         Создайте первого клиента, чтобы начать отслеживать задачи и время.
                     </p>
                 </div>
             ) : view === 'grid' ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {clients.map((client: any) => (
-                        <div key={client.id} className="glass-card rounded-xl p-6 hover:scale-[1.02] transition-all duration-200 group relative">
+                        <div key={client.id} className="bg-white rounded-xl p-6 hover:scale-[1.02] transition-all duration-200 group relative border border-gray-200">
                             <button
                                 onClick={() => handleEdit(client)}
-                                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+                                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 hover:text-blue-600"
                             >
                                 <Edit className="w-4 h-4" />
                             </button>
@@ -92,8 +107,8 @@ export default function ClientsPage() {
                                     <Building2 className="w-6 h-6 text-blue-500" />
                                 </div>
                             </div>
-                            <h3 className="text-lg font-semibold text-foreground mb-3 pr-8">{client.name}</h3>
-                            <div className="space-y-2.5 text-sm text-muted-foreground">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3 pr-8">{client.name}</h3>
+                            <div className="space-y-2.5 text-sm text-gray-900">
                                 {client.contact?.email && (
                                     <div className="flex items-center gap-2.5">
                                         <Mail className="w-4 h-4 text-primary/70" />
@@ -111,31 +126,31 @@ export default function ClientsPage() {
                     ))}
                 </div>
             ) : (
-                <div className="glass-card rounded-xl overflow-hidden">
+                <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-muted/30 border-b border-border/40">
+                        <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th className="px-6 py-4 font-medium text-muted-foreground">Название</th>
-                                <th className="px-6 py-4 font-medium text-muted-foreground">Email</th>
-                                <th className="px-6 py-4 font-medium text-muted-foreground">Телефон</th>
-                                <th className="px-6 py-4 font-medium text-muted-foreground"></th>
+                                <th className="px-6 py-4 font-medium text-gray-900">Название</th>
+                                <th className="px-6 py-4 font-medium text-gray-900">Email</th>
+                                <th className="px-6 py-4 font-medium text-gray-900">Телефон</th>
+                                <th className="px-6 py-4 font-medium text-gray-900"></th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border/40">
+                        <tbody className="divide-y divide-gray-200">
                             {clients.map((client: any) => (
-                                <tr key={client.id} className="hover:bg-muted/20 transition-colors group">
-                                    <td className="px-6 py-4 font-medium text-foreground flex items-center gap-3">
+                                <tr key={client.id} className="hover:bg-gray-50 transition-colors group">
+                                    <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
                                         <div className="p-2 bg-blue-500/10 rounded-lg">
                                             <Building2 className="w-4 h-4 text-blue-500" />
                                         </div>
                                         {client.name}
                                     </td>
-                                    <td className="px-6 py-4 text-muted-foreground">{client.contact?.email || '-'}</td>
-                                    <td className="px-6 py-4 text-muted-foreground">{client.contact?.phone || '-'}</td>
+                                    <td className="px-6 py-4 text-gray-900">{client.contact?.email || '-'}</td>
+                                    <td className="px-6 py-4 text-gray-900">{client.contact?.phone || '-'}</td>
                                     <td className="px-6 py-4 text-right">
                                         <button
                                             onClick={() => handleEdit(client)}
-                                            className="text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                                            className="text-gray-500 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                             <Edit className="w-4 h-4" />
                                         </button>

@@ -10,6 +10,13 @@ export interface TaskBlock {
     color: 'blue' | 'yellow' | 'green' | 'red' | 'purple' | 'gray';
 }
 
+export interface CustomColumn {
+    id: string;
+    title: string;
+    type: 'text' | 'number' | 'select' | 'date';
+    options?: string[];
+}
+
 export interface TaskSettings {
     layout: TaskLayout;
     enabledViews: {
@@ -25,6 +32,11 @@ export interface TaskSettings {
         spentTime: boolean;
     };
     taskBlocks: TaskBlock[];
+    customColumns: CustomColumn[];
+    tableSettings: {
+        rowsPerPage: 10 | 25 | 50 | 100;
+        defaultSort: { field: string; order: 'asc' | 'desc' };
+    };
 }
 
 interface TaskSettingsStore {
@@ -40,7 +52,7 @@ const defaultSettings: TaskSettings = {
         kanban: true,
     },
     visibleColumns: {
-        status: true,
+        status: false,
         priority: true,
         project: true,
         participants: true,
@@ -53,6 +65,11 @@ const defaultSettings: TaskSettings = {
         { id: '3', title: 'На проверке', statuses: ['REVIEW'], color: 'purple' },
         { id: '4', title: 'Завершено', statuses: ['DONE'], color: 'green' },
     ],
+    customColumns: [],
+    tableSettings: {
+        rowsPerPage: 25,
+        defaultSort: { field: 'createdAt', order: 'desc' },
+    },
 };
 
 export const useTaskSettings = create<TaskSettingsStore>()(

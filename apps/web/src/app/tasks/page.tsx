@@ -9,9 +9,10 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useTaskSettings } from '@/hooks/use-task-settings';
 import TaskTable from '@/components/task-table';
+import CalendarView from '@/components/calendar-view';
 
 export default function TasksPage() {
-    const [view, setView] = useState<'table' | 'kanban'>('table');
+    const [view, setView] = useState<'table' | 'kanban' | 'calendar'>('table');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const queryClient = useQueryClient();
@@ -36,6 +37,7 @@ export default function TasksPage() {
             case 'IN_PROGRESS': return 'В работе';
             case 'REVIEW': return 'На проверке';
             case 'DONE': return 'Готово';
+            case 'PAUSED': return 'На паузе';
             default: return status;
         }
     };
@@ -124,6 +126,13 @@ export default function TasksPage() {
                                 <Kanban className="w-4 h-4" />
                             </button>
                         )}
+                        <button
+                            onClick={() => setView('calendar')}
+                            className={`p-2 rounded-md transition-all ${view === 'calendar' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                            title="Режим Календарь"
+                        >
+                            <Calendar className="w-4 h-4" />
+                        </button>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
@@ -140,33 +149,40 @@ export default function TasksPage() {
                     tasks={tasks || []}
                     layout={settings.layout}
                     taskBlocks={settings.taskBlocks}
+                    customColumns={settings.customColumns || []}
                     onEdit={handleEdit}
                 />
-            ) : (
+            ) : view === 'kanban' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-12rem)] overflow-x-auto">
-                    {['NEW', 'IN_PROGRESS', 'REVIEW', 'DONE'].map((status) => (
+                    {settings.taskBlocks.map((block) => (
                         <div
-                            key={status}
-                            className="bg-muted/30 rounded-lg p-4 flex flex-col gap-3 h-full border border-border/50"
+                            key={block.id}
+                            className={`rounded-lg p-4 flex flex-col gap-3 h-full border-2 ${block.color === 'blue' ? 'border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20' :
+                                block.color === 'yellow' ? 'border-yellow-500/30 bg-yellow-50/50 dark:bg-yellow-950/20' :
+                                    block.color === 'green' ? 'border-green-500/30 bg-green-50/50 dark:bg-green-950/20' :
+                                        block.color === 'purple' ? 'border-purple-500/30 bg-purple-50/50 dark:bg-purple-950/20' :
+                                            block.color === 'red' ? 'border-red-500/30 bg-red-50/50 dark:bg-red-950/20' :
+                                                'border-gray-500/30 bg-gray-50/50 dark:bg-gray-950/20'
+                                }`}
                             onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, status)}
+                            onDrop={(e) => handleDrop(e, block.statuses[0])} // Drop to the first status in the block
                         >
                             <div className="flex items-center justify-between mb-2">
-                                <h3 className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                                    {getStatusLabel(status)}
+                                <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider">
+                                    {block.title}
                                 </h3>
-                                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                                    {tasks?.filter((t: any) => t.status === status).length || 0}
+                                <span className="text-xs text-muted-foreground bg-background/50 px-2 py-1 rounded-full border border-border/50">
+                                    {tasks?.filter((t: any) => block.statuses.includes(t.status)).length || 0}
                                 </span>
                             </div>
 
                             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                                {tasks?.filter((t: any) => t.status === status).map((task: any) => (
+                                {tasks?.filter((t: any) => block.statuses.includes(t.status)).map((task: any) => (
                                     <div
                                         key={task.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, task.id)}
-                                        className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-border cursor-move hover:shadow-md transition-all group relative"
+                                        className="bg-background p-4 rounded-lg shadow-sm border border-border cursor-move hover:shadow-md transition-all group relative"
                                     >
                                         <button
                                             onClick={() => handleEdit(task)}
@@ -194,7 +210,7 @@ export default function TasksPage() {
                                                 task.priority === 'MEDIUM' ? 'border-yellow-200 text-yellow-600 bg-yellow-50' :
                                                     'border-green-200 text-green-600 bg-green-50'
                                                 }`}>
-                                                {task.priority}
+                                                {task.priority === 'HIGH' ? 'Высокий' : task.priority === 'MEDIUM' ? 'Средний' : 'Низкий'}
                                             </span>
                                         </div>
                                     </div>
@@ -203,6 +219,8 @@ export default function TasksPage() {
                         </div>
                     ))}
                 </div>
+            ) : (
+                <CalendarView tasks={tasks || []} onEdit={handleEdit} />
             )}
 
             <TaskModal

@@ -15,8 +15,17 @@ export class TimeEntriesController {
         return this.timeEntriesService.findAll();
     }
 
-    @Get(':id')
     findOne(@Param('id') id: string) {
         return this.timeEntriesService.findOne(id);
+    }
+
+    @Get('task/:taskId')
+    findByTask(@Param('taskId') taskId: string) {
+        return this.timeEntriesService.findByTask(taskId);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.timeEntriesService.remove(id);
     }
 }

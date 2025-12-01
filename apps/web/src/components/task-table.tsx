@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Edit, LayoutList, Calendar, User as UserIcon } from 'lucide-react';
+import { Edit, LayoutList, Calendar, User as UserIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { ru, enUS } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
+import { CustomColumn } from '@/hooks/use-task-settings';
 
 interface Task {
     id: string;
@@ -11,6 +13,8 @@ interface Task {
     assignees?: Array<{ name: string }>;
     dueDate?: string;
     client?: { name: string };
+    spentTime?: number;
+    customFields?: Record<string, any>;
 }
 
 interface TaskBlock {
@@ -24,6 +28,7 @@ interface TaskTableProps {
     tasks: Task[];
     layout: 'standard' | 'split' | 'priority';
     taskBlocks: TaskBlock[];
+    customColumns?: CustomColumn[];
     onEdit: (task: Task) => void;
 }
 
@@ -36,25 +41,72 @@ const getPriorityColor = (priority: string) => {
     }
 };
 
-const getStatusLabel = (status: string) => {
-    switch (status) {
-        case 'NEW': return 'Новая';
-        case 'IN_PROGRESS': return 'В работе';
-        case 'REVIEW': return 'На проверке';
-        case 'DONE': return 'Готово';
-        default: return status;
-    }
-};
-
-export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTableProps) {
+export default function TaskTable({ tasks, layout, taskBlocks, customColumns = [], onEdit }: TaskTableProps) {
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+    const { t, i18n } = useTranslation();
+
+    const dateLocale = i18n.language === 'ru' ? ru : enUS;
+
+    const handleSort = (key: string) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const priorityOrder: Record<string, number> = { 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
+
+    const sortedTasks = [...tasks].sort((a, b) => {
+        if (!sortConfig) return 0;
+
+        const { key, direction } = sortConfig;
+        let aValue: any;
+        let bValue: any;
+
+        if (key === 'assignee') {
+            aValue = a.assignees?.[0]?.name || '';
+            bValue = b.assignees?.[0]?.name || '';
+        } else if (key === 'client') {
+            aValue = a.client?.name || '';
+            bValue = b.client?.name || '';
+        } else if (key === 'priority') {
+            aValue = priorityOrder[a.priority] || 0;
+            bValue = priorityOrder[b.priority] || 0;
+        } else if (key.startsWith('custom_')) {
+            const fieldId = key.replace('custom_', '');
+            aValue = a.customFields?.[fieldId] || '';
+            bValue = b.customFields?.[fieldId] || '';
+        } else {
+            aValue = a[key as keyof Task];
+            bValue = b[key as keyof Task];
+        }
+
+        // Handle null/undefined
+        if (aValue === undefined || aValue === null) aValue = '';
+        if (bValue === undefined || bValue === null) bValue = '';
+
+        if (aValue < bValue) {
+            return direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+            return direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
+    const SortIcon = ({ columnKey }: { columnKey: string }) => {
+        if (sortConfig?.key !== columnKey) return null;
+        return sortConfig.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1 text-primary" /> : <ArrowDown className="w-4 h-4 ml-1 text-primary" />;
+    };
 
     // Шаблон "По блокам"
     if (layout === 'priority') {
         return (
             <div className="space-y-6">
                 {taskBlocks.map((block) => {
-                    const blockTasks = tasks.filter((t) => block.statuses.includes(t.status));
+                    const blockTasks = sortedTasks.filter((t) => block.statuses.includes(t.status));
 
                     const blockColor = {
                         blue: 'border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20',
@@ -68,44 +120,113 @@ export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTab
                     return (
                         <section key={block.id} className={`rounded-lg border-2 ${blockColor} p-4`}>
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-foreground">{block.title}</h2>
-                                <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                                    {blockTasks.length} {blockTasks.length === 1 ? 'задача' : 'задач'}
+                                <h2 className="text-lg font-semibold text-gray-900">{block.title}</h2>
+                                <span className="text-sm text-gray-900 bg-gray-100 px-3 py-1 rounded-full">
+                                    {blockTasks.length} {blockTasks.length === 1 ? (i18n.language === 'ru' ? 'задача' : 'task') : (i18n.language === 'ru' ? 'задач' : 'tasks')}
                                 </span>
                             </div>
 
                             {blockTasks.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground text-sm">
-                                    Нет задач в этом блоке
+                                <div className="text-center py-8 text-gray-900 text-sm">
+                                    {t('tasks.no_tasks')}
                                 </div>
                             ) : (
-                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-border">
+                                <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-muted/50 border-b border-border">
                                             <tr>
-                                                <th className="px-6 py-3 font-medium text-muted-foreground">Название</th>
-                                                <th className="px-6 py-3 font-medium text-muted-foreground">Приоритет</th>
-                                                <th className="px-6 py-3 font-medium text-muted-foreground">Проект</th>
-                                                <th className="px-6 py-3 font-medium text-muted-foreground">Исполнитель</th>
-                                                <th className="px-6 py-3 font-medium text-muted-foreground">Срок</th>
+                                                <th
+                                                    className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                    onClick={() => handleSort('title')}
+                                                >
+                                                    <div className="flex items-center">
+                                                        {t('tasks.title')}
+                                                        <SortIcon columnKey="title" />
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                    onClick={() => handleSort('priority')}
+                                                >
+                                                    <div className="flex items-center">
+                                                        {t('tasks.priority')}
+                                                        <SortIcon columnKey="priority" />
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                    onClick={() => handleSort('client')}
+                                                >
+                                                    <div className="flex items-center">
+                                                        {t('tasks.project')}
+                                                        <SortIcon columnKey="client" />
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                    onClick={() => handleSort('assignee')}
+                                                >
+                                                    <div className="flex items-center">
+                                                        {t('tasks.assignee')}
+                                                        <SortIcon columnKey="assignee" />
+                                                    </div>
+                                                </th>
+                                                {customColumns.map((col) => (
+                                                    <th
+                                                        key={col.id}
+                                                        className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                        onClick={() => handleSort(`custom_${col.id}`)}
+                                                    >
+                                                        <div className="flex items-center">
+                                                            {col.title}
+                                                            <SortIcon columnKey={`custom_${col.id}`} />
+                                                        </div>
+                                                    </th>
+                                                ))}
+                                                <th
+                                                    className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                    onClick={() => handleSort('spentTime')}
+                                                >
+                                                    <div className="flex items-center">
+                                                        {t('tasks.spent_time')}
+                                                        <SortIcon columnKey="spentTime" />
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                                    onClick={() => handleSort('dueDate')}
+                                                >
+                                                    <div className="flex items-center">
+                                                        {t('tasks.due_date')}
+                                                        <SortIcon columnKey="dueDate" />
+                                                    </div>
+                                                </th>
                                                 <th className="px-6 py-3 font-medium text-muted-foreground"></th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-border">
                                             {blockTasks.map((task) => (
-                                                <tr key={task.id} className="hover:bg-muted/50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium text-foreground">{task.title}</td>
+                                                <tr key={task.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onDoubleClick={() => onEdit(task)}>
+                                                    <td className="px-6 py-4 font-medium text-gray-900">{task.title}</td>
                                                     <td className="px-6 py-4">
-                                                        <span className={getPriorityColor(task.priority)}>{task.priority}</span>
+                                                        <span className={getPriorityColor(task.priority)}>{t(`priority.${task.priority}`)}</span>
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground">
+                                                    <td className="px-6 py-4 text-gray-900">
                                                         {task.client?.name || '-'}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground">
-                                                        {task.assignees?.[0]?.name || 'Не назначен'}
+                                                    <td className="px-6 py-4 text-gray-900">
+                                                        {task.assignees?.[0]?.name || t('tasks.no_assignee', 'Unassigned')}
                                                     </td>
-                                                    <td className="px-6 py-4 text-muted-foreground">
-                                                        {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: ru }) : '-'}
+                                                    {customColumns.map((col) => (
+                                                        <td key={col.id} className="px-6 py-4 text-gray-900">
+                                                            {task.customFields?.[col.id] || '-'}
+                                                        </td>
+                                                    ))}
+                                                    <td className="px-6 py-4 text-gray-900">
+                                                        {task.spentTime || 0} {t('common.hours')}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-gray-900">
+                                                        {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: dateLocale }) : '-'}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <button
@@ -130,40 +251,40 @@ export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTab
 
     // Шаблон "Фокус" (Split View)
     if (layout === 'split') {
-        const selectedTask = tasks.find(t => t.id === selectedTaskId);
+        const selectedTask = sortedTasks.find(t => t.id === selectedTaskId);
 
         return (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
                 {/* Left Column: Task List */}
-                <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-border flex flex-col">
-                    <div className="p-4 border-b border-border bg-muted/30">
-                        <h3 className="font-semibold text-foreground">Список задач</h3>
+                <div className="lg:col-span-1 bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col">
+                    <div className="p-4 border-b border-border bg-gray-50">
+                        <h3 className="font-semibold text-gray-900">{t('tasks.title')}</h3>
                     </div>
                     <div className="overflow-y-auto flex-1 p-2 space-y-2">
-                        {tasks.map(task => (
+                        {sortedTasks.map(task => (
                             <div
                                 key={task.id}
                                 onClick={() => setSelectedTaskId(task.id)}
                                 className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedTaskId === task.id
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'border-transparent hover:bg-muted/50'
+                                    ? 'border-primary bg-primary/5 shadow-sm'
+                                    : 'border-transparent hover:bg-muted/50'
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-2">
-                                    <h4 className={`font-medium text-sm ${selectedTaskId === task.id ? 'text-primary' : 'text-foreground'}`}>
+                                    <h4 className={`font-medium text-sm ${selectedTaskId === task.id ? 'text-blue-600' : 'text-gray-900'}`}>
                                         {task.title}
                                     </h4>
                                     <span className={`text-[10px] px-1.5 py-0.5 rounded border ${task.priority === 'HIGH' ? 'border-red-200 text-red-600 bg-red-50' :
-                                            task.priority === 'MEDIUM' ? 'border-yellow-200 text-yellow-600 bg-yellow-50' :
-                                                'border-green-200 text-green-600 bg-green-50'
+                                        task.priority === 'MEDIUM' ? 'border-yellow-200 text-yellow-600 bg-yellow-50' :
+                                            'border-green-200 text-green-600 bg-green-50'
                                         }`}>
-                                        {task.priority}
+                                        {t(`priority.${task.priority}`)}
                                     </span>
                                 </div>
-                                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>{getStatusLabel(task.status)}</span>
+                                <div className="flex items-center justify-between text-xs text-gray-900">
+                                    <span>{t(`status.${task.status}`)}</span>
                                     {task.dueDate && (
-                                        <span>{format(new Date(task.dueDate), 'd MMM', { locale: ru })}</span>
+                                        <span>{format(new Date(task.dueDate), 'd MMM', { locale: dateLocale })}</span>
                                     )}
                                 </div>
                             </div>
@@ -172,19 +293,19 @@ export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTab
                 </div>
 
                 {/* Right Column: Task Details */}
-                <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow border border-border overflow-hidden flex flex-col">
+                <div className="lg:col-span-2 bg-white rounded-lg shadow border border-gray-200 overflow-hidden flex flex-col">
                     {selectedTask ? (
                         <div className="flex flex-col h-full">
                             <div className="p-6 border-b border-border flex justify-between items-start bg-muted/10">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-foreground mb-2">{selectedTask.title}</h2>
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedTask.title}</h2>
                                     <div className="flex items-center gap-2">
                                         <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                            {getStatusLabel(selectedTask.status)}
+                                            {t(`status.${selectedTask.status}`)}
                                         </span>
                                         {selectedTask.client && (
-                                            <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                                • Проект: {selectedTask.client.name}
+                                            <span className="text-sm text-gray-900 flex items-center gap-1">
+                                                • {t('tasks.project')}: {selectedTask.client.name}
                                             </span>
                                         )}
                                     </div>
@@ -194,48 +315,63 @@ export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTab
                                     className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
                                 >
                                     <Edit className="w-4 h-4" />
-                                    Редактировать
+                                    {t('tasks.edit')}
                                 </button>
                             </div>
 
                             <div className="p-6 space-y-6 overflow-y-auto flex-1">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div>
-                                        <h3 className="text-sm font-medium text-muted-foreground mb-1">Исполнитель</h3>
+                                        <h3 className="text-sm font-medium text-gray-900 mb-1">{t('tasks.assignee')}</h3>
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
                                                 <UserIcon className="w-4 h-4" />
                                             </div>
-                                            <span className="text-foreground font-medium">
-                                                {selectedTask.assignees?.[0]?.name || 'Не назначен'}
+                                            <span className="text-gray-900 font-medium">
+                                                {selectedTask.assignees?.[0]?.name || t('tasks.no_assignee', 'Unassigned')}
                                             </span>
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-medium text-muted-foreground mb-1">Срок выполнения</h3>
-                                        <div className="flex items-center gap-2 text-foreground">
-                                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                                            {selectedTask.dueDate ? format(new Date(selectedTask.dueDate), 'd MMMM yyyy', { locale: ru }) : 'Не указан'}
+                                        <h3 className="text-sm font-medium text-gray-900 mb-1">{t('tasks.due_date')}</h3>
+                                        <div className="flex items-center gap-2 text-gray-900">
+                                            <Calendar className="w-4 h-4 text-gray-500" />
+                                            {selectedTask.dueDate ? format(new Date(selectedTask.dueDate), 'd MMMM yyyy', { locale: dateLocale }) : '-'}
                                         </div>
                                     </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-900 mb-1">{t('tasks.spent_time')}</h3>
+                                        <div className="flex items-center gap-2 text-gray-900">
+                                            <span className="font-medium">{selectedTask.spentTime || 0} {t('common.hours')}</span>
+                                        </div>
+                                    </div>
+                                    {/* Custom Fields in Details */}
+                                    {customColumns.map((col) => (
+                                        <div key={col.id}>
+                                            <h3 className="text-sm font-medium text-gray-900 mb-1">{col.title}</h3>
+                                            <div className="text-gray-900">
+                                                {selectedTask.customFields?.[col.id] || '-'}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 <div>
-                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Описание</h3>
-                                    <div className="p-4 bg-muted/30 rounded-lg border border-border/50 min-h-[100px] text-sm text-foreground">
+                                    <h3 className="text-sm font-medium text-gray-900 mb-2">{t('tasks.description')}</h3>
+                                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px] text-sm text-gray-900">
                                         {/* Здесь могло бы быть описание задачи, если бы оно было в API */}
-                                        Описание задачи отсутствует.
+                                        {t('tasks.no_description', 'No description available.')}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center">
-                            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                        <div className="flex flex-col items-center justify-center h-full text-gray-900 p-8 text-center">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                 <LayoutList className="w-8 h-8 opacity-50" />
                             </div>
-                            <h3 className="text-lg font-medium text-foreground mb-1">Выберите задачу</h3>
-                            <p className="text-sm max-w-xs">Нажмите на задачу в списке слева, чтобы просмотреть её детали.</p>
+                            <h3 className="text-lg font-medium text-gray-900 mb-1">{t('tasks.select_task', 'Select a task')}</h3>
+                            <p className="text-sm max-w-xs">{t('tasks.select_task_desc', 'Click on a task in the list to view details.')}</p>
                         </div>
                     )}
                 </div>
@@ -245,35 +381,92 @@ export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTab
 
     // Шаблон "Стандартный" - все задачи в одной таблице
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-border">
+        <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
             <table className="w-full text-left text-sm">
                 <thead className="bg-muted/50 border-b border-border">
                     <tr>
-                        <th className="px-6 py-3 font-medium text-muted-foreground">Название</th>
-                        <th className="px-6 py-3 font-medium text-muted-foreground">Статус</th>
-                        <th className="px-6 py-3 font-medium text-muted-foreground">Приоритет</th>
-                        <th className="px-6 py-3 font-medium text-muted-foreground">Исполнитель</th>
-                        <th className="px-6 py-3 font-medium text-muted-foreground">Срок</th>
+                        <th
+                            className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                            onClick={() => handleSort('title')}
+                        >
+                            <div className="flex items-center">
+                                {t('tasks.title')}
+                                <SortIcon columnKey="title" />
+                            </div>
+                        </th>
+
+                        <th
+                            className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                            onClick={() => handleSort('priority')}
+                        >
+                            <div className="flex items-center">
+                                {t('tasks.priority')}
+                                <SortIcon columnKey="priority" />
+                            </div>
+                        </th>
+                        <th
+                            className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                            onClick={() => handleSort('assignee')}
+                        >
+                            <div className="flex items-center">
+                                {t('tasks.assignee')}
+                                <SortIcon columnKey="assignee" />
+                            </div>
+                        </th>
+                        {customColumns.map((col) => (
+                            <th
+                                key={col.id}
+                                className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                                onClick={() => handleSort(`custom_${col.id}`)}
+                            >
+                                <div className="flex items-center">
+                                    {col.title}
+                                    <SortIcon columnKey={`custom_${col.id}`} />
+                                </div>
+                            </th>
+                        ))}
+                        <th
+                            className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                            onClick={() => handleSort('spentTime')}
+                        >
+                            <div className="flex items-center">
+                                {t('tasks.spent_time')}
+                                <SortIcon columnKey="spentTime" />
+                            </div>
+                        </th>
+                        <th
+                            className="px-6 py-3 font-medium text-gray-900 cursor-pointer hover:text-gray-700 transition-colors group select-none"
+                            onClick={() => handleSort('dueDate')}
+                        >
+                            <div className="flex items-center">
+                                {t('tasks.due_date')}
+                                <SortIcon columnKey="dueDate" />
+                            </div>
+                        </th>
                         <th className="px-6 py-3 font-medium text-muted-foreground"></th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                    {tasks.map((task) => (
-                        <tr key={task.id} className="hover:bg-muted/50 transition-colors">
-                            <td className="px-6 py-4 font-medium text-foreground">{task.title}</td>
+                    {sortedTasks.map((task) => (
+                        <tr key={task.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onDoubleClick={() => onEdit(task)}>
+                            <td className="px-6 py-4 font-medium text-gray-900">{task.title}</td>
+
                             <td className="px-6 py-4">
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs font-medium">
-                                    {getStatusLabel(task.status)}
-                                </span>
+                                <span className={getPriorityColor(task.priority)}>{t(`priority.${task.priority}`)}</span>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className={getPriorityColor(task.priority)}>{task.priority}</span>
+                            <td className="px-6 py-4 text-gray-900">
+                                {task.assignees?.[0]?.name || t('tasks.no_assignee', 'Unassigned')}
                             </td>
-                            <td className="px-6 py-4 text-muted-foreground">
-                                {task.assignees?.[0]?.name || 'Не назначен'}
+                            {customColumns.map((col) => (
+                                <td key={col.id} className="px-6 py-4 text-gray-900">
+                                    {task.customFields?.[col.id] || '-'}
+                                </td>
+                            ))}
+                            <td className="px-6 py-4 text-gray-900">
+                                {task.spentTime || 0} {t('common.hours')}
                             </td>
-                            <td className="px-6 py-4 text-muted-foreground">
-                                {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: ru }) : '-'}
+                            <td className="px-6 py-4 text-gray-900">
+                                {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: dateLocale }) : '-'}
                             </td>
                             <td className="px-6 py-4">
                                 <button
@@ -285,10 +478,10 @@ export default function TaskTable({ tasks, layout, taskBlocks, onEdit }: TaskTab
                             </td>
                         </tr>
                     ))}
-                    {tasks.length === 0 && (
+                    {sortedTasks.length === 0 && (
                         <tr>
-                            <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                                Задач пока нет
+                            <td colSpan={7 + customColumns.length} className="px-6 py-8 text-center text-gray-900">
+                                {t('tasks.no_tasks')}
                             </td>
                         </tr>
                     )}

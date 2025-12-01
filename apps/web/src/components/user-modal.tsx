@@ -125,7 +125,7 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative border border-gray-200 dark:border-gray-700">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
@@ -152,7 +152,7 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
                             {avatar && (
                                 <img
                                     src={avatar}
-                                    alt="Avatar"
+                                    alt="Аватар"
                                     className="w-16 h-16 rounded-full object-cover"
                                 />
                             )}
