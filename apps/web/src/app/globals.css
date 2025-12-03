@@ -25,31 +25,45 @@
 }
 
 .dark {
-  /* Dark Mode - Strict Inversion */
-  --background: 222 47% 11%;
-  /* Matches Light Foreground */
-  --foreground: 210 40% 98%;
-  /* Matches Light Background */
-  --card: 222 47% 11%;
-  /* Matches Light Card Foreground (approx) or just dark */
-  --card-foreground: 210 40% 98%;
-  --popover: 222 47% 11%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 221 83% 53%;
-  /* Keep Primary same or slightly adjusted for contrast */
-  --primary-foreground: 210 40% 98%;
-  --secondary: 217 33% 17%;
-  /* Darker muted */
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 221 83% 53%;
+  /* Dark Mode - GitHub Dark Default */
+  --background: 214 27% 7%;
+  /* #0d1117 */
+  --foreground: 210 17% 82%;
+  /* #c9d1d9 */
+
+  --card: 214 20% 11%;
+  /* #161b22 */
+  --card-foreground: 210 17% 82%;
+
+  --popover: 214 20% 11%;
+  /* #161b22 */
+  --popover-foreground: 210 17% 82%;
+
+  --primary: 212 100% 67%;
+  /* #58a6ff - GitHub Blue */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 214 14% 15%;
+  /* #21262d */
+  --secondary-foreground: 210 17% 82%;
+
+  --muted: 214 14% 15%;
+  /* #21262d */
+  --muted-foreground: 212 9% 58%;
+  /* #8b949e */
+
+  --accent: 214 14% 15%;
+  /* #21262d */
+  --accent-foreground: 210 17% 82%;
+
+  --destructive: 3 93% 63%;
+  /* #f85149 - GitHub Red */
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 213 12% 21%;
+  /* #30363d */
+  --input: 213 12% 21%;
+  --ring: 212 100% 67%;
 }
 
 @theme inline {
@@ -101,12 +115,14 @@ body {
 }
 
 .dark .glass {
-  background: rgba(30, 41, 59, 0.7);
-  /* Slate 800 with opacity */
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(13, 17, 23, 0.7);
+  /* GitHub Dark Bg with opacity */
+  border: 1px solid rgba(48, 54, 61, 0.5);
+  /* GitHub Border */
 }
 
 .dark .glass-card {
-  background: linear-gradient(145deg, rgba(51, 65, 85, 0.6) 0%, rgba(30, 41, 59, 0.6) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(145deg, rgba(22, 27, 34, 0.6) 0%, rgba(13, 17, 23, 0.6) 100%);
+  border: 1px solid rgba(48, 54, 61, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }

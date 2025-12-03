@@ -27,11 +27,11 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="h-16 border-b border-border/40 flex items-center justify-between px-6 glass">
-                <div className="flex items-center gap-4">
-                    <Link href="/" className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
-                            <CheckSquare className="w-5 h-5" />
+            <nav className="h-12 border-b border-border/40 flex items-center justify-between px-4 glass">
+                <div className="flex items-center gap-2">
+                    <Link href="/" className="text-base font-bold tracking-tight text-foreground flex items-center gap-1.5">
+                        <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
+                            <CheckSquare className="w-3.5 h-3.5" />
                         </div>
                         TaskTracker
                     </Link>
@@ -44,16 +44,16 @@ export default function Navbar() {
                                 <Bell className="w-5 h-5" />
                                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
-                            <div className="flex items-center gap-3 pl-4 border-l border-border">
+                            <div className="flex items-center gap-2 pl-2 border-l border-border">
                                 <button
                                     onClick={() => setIsProfileModalOpen(true)}
-                                    className="flex items-center gap-3 hover:opacity-80 transition-opacity text-left group"
+                                    className="flex items-center gap-1.5 hover:opacity-80 transition-opacity text-left group"
                                 >
                                     <div className="hidden sm:block">
-                                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{user?.name || 'User'}</p>
-                                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                                        <p className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">{user?.name || 'User'}</p>
+                                        <p className="text-[10px] text-muted-foreground">{user?.email}</p>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border group-hover:border-primary transition-colors">
+                                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border group-hover:border-primary transition-colors">
                                         {user?.avatar ? (
                                             <img
                                                 src={user.avatar}
@@ -62,7 +62,7 @@ export default function Navbar() {
                                                 key={user.avatar}
                                             />
                                         ) : (
-                                            <User className="w-6 h-6 text-muted-foreground" />
+                                            <User className="w-4 h-4 text-muted-foreground" />
                                         )}
                                     </div>
                                 </button>

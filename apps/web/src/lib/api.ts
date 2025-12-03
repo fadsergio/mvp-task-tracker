@@ -151,11 +151,10 @@ export const reportsApi = {
         link.remove();
     },
     getTaskReport: async (params: {
-        groupBy?: 'client' | 'status' | 'assignee';
+        groupBy?: 'client' | 'assignee';
         dateFrom?: string;
         dateTo?: string;
         clientId?: string;
-        status?: string;
         priority?: string;
     }) => {
         const { data } = await api.get('/reports/tasks', { params });
@@ -163,11 +162,10 @@ export const reportsApi = {
     },
 
     exportTaskReportCSV: async (params: {
-        groupBy?: 'client' | 'status' | 'assignee';
+        groupBy?: 'client' | 'assignee';
         dateFrom?: string;
         dateTo?: string;
         clientId?: string;
-        status?: string;
         priority?: string;
     }) => {
         const response = await api.get('/reports/tasks', {
@@ -179,6 +177,43 @@ export const reportsApi = {
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', `task-report-${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    },
+    getClientDetail: async (params: {
+        clientId: string;
+        dateFrom?: string;
+        dateTo?: string;
+        priority?: string;
+    }) => {
+        const { data } = await api.get(`/reports/client/${params.clientId}/detail`, { params });
+        return data;
+    },
+
+    exportExcel: async (filters: any) => {
+        const response = await api.get('/reports/export/excel', {
+            params: filters,
+            responseType: 'blob',
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `report-${new Date().toISOString().split('T')[0]}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    },
+
+    exportPDF: async (filters: any) => {
+        const response = await api.get('/reports/export/pdf', {
+            params: filters,
+            responseType: 'blob',
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `report-${new Date().toISOString().split('T')[0]}.pdf`);
         document.body.appendChild(link);
         link.click();
         link.remove();

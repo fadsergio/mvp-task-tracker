@@ -28,7 +28,7 @@ export default function RootLayout({
             <Navbar />
             <div className="flex flex-1">
               <Sidebar />
-              <main className="flex-1 p-6 bg-muted/30">
+              <main className="flex-1 p-3 bg-muted/30">
                 {children}
               </main>
             </div>

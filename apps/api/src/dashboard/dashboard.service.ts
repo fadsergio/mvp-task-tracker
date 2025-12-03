@@ -14,18 +14,10 @@ export class DashboardService {
         const activeTasks = await this.prisma.task.count({
             where: {
                 tenantId,
-                status: {
-                    in: ['NEW', 'IN_PROGRESS', 'REVIEW'],
-                },
             },
         });
 
-        const completedTasks = await this.prisma.task.count({
-            where: {
-                tenantId,
-                status: 'DONE',
-            },
-        });
+        const completedTasks = 0;
 
         // Calculate total hours spent today from TimeEntries
         const today = new Date();

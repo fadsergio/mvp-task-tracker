@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { TaskStatus, Priority } from '@prisma/client';
+import { Priority } from '@prisma/client';
 
 @Injectable()
 export class ImportService {
@@ -33,7 +33,6 @@ export class ImportService {
             const taskData = {
                 title: rawTask.title || rawTask.name || rawTask.Subject || 'Untitled Task',
                 description: rawTask.description || rawTask.Description || rawTask.Notes || '',
-                status: this.mapStatus(rawTask.status || rawTask.Status || rawTask.State),
                 priority: this.mapPriority(rawTask.priority || rawTask.Priority),
                 tenantId,
                 createdById: userId,
@@ -86,15 +85,6 @@ export class ImportService {
         }
 
         return result;
-    }
-
-    private mapStatus(status: string): TaskStatus {
-        if (!status) return TaskStatus.NEW;
-        const s = status.toUpperCase();
-        if (s.includes('PROGRESS') || s.includes('WIP')) return TaskStatus.IN_PROGRESS;
-        if (s.includes('REVIEW') || s.includes('CHECK')) return TaskStatus.REVIEW;
-        if (s.includes('DONE') || s.includes('COMPLETE') || s.includes('CLOSED')) return TaskStatus.DONE;
-        return TaskStatus.NEW;
     }
 
     private mapPriority(priority: string): Priority {

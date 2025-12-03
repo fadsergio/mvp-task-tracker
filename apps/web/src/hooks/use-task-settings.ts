@@ -6,7 +6,7 @@ export type TaskLayout = 'standard' | 'split' | 'priority';
 export interface TaskBlock {
     id: string;
     title: string;
-    statuses: string[];
+    status?: string;
     color: 'blue' | 'yellow' | 'green' | 'red' | 'purple' | 'gray';
 }
 
@@ -52,7 +52,7 @@ const defaultSettings: TaskSettings = {
         kanban: true,
     },
     visibleColumns: {
-        status: false,
+        status: true,
         priority: true,
         project: true,
         participants: true,
@@ -60,10 +60,9 @@ const defaultSettings: TaskSettings = {
         spentTime: true,
     },
     taskBlocks: [
-        { id: '1', title: 'Новые задачи', statuses: ['NEW'], color: 'blue' },
-        { id: '2', title: 'В работе', statuses: ['IN_PROGRESS'], color: 'yellow' },
-        { id: '3', title: 'На проверке', statuses: ['REVIEW'], color: 'purple' },
-        { id: '4', title: 'Завершено', statuses: ['DONE'], color: 'green' },
+        { id: 'todo', title: 'К выполнению', status: 'TODO', color: 'blue' },
+        { id: 'in_progress', title: 'В работе', status: 'IN_PROGRESS', color: 'yellow' },
+        { id: 'done', title: 'Выполнено', status: 'DONE', color: 'green' },
     ],
     customColumns: [],
     tableSettings: {
@@ -84,6 +83,18 @@ export const useTaskSettings = create<TaskSettingsStore>()(
         }),
         {
             name: 'task-settings',
+            version: 1,
+            migrate: (persistedState: any, version) => {
+                if (version === 0 || !version) {
+                    // Reset taskBlocks if migrating from version 0 (or no version)
+                    return {
+                        ...persistedState,
+                        taskBlocks: defaultSettings.taskBlocks,
+                        visibleColumns: defaultSettings.visibleColumns,
+                    };
+                }
+                return persistedState;
+            },
             onRehydrateStorage: () => (state) => {
                 if (state) {
                     state.isLoaded = true;

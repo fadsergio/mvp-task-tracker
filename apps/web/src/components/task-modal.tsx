@@ -17,6 +17,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState('MEDIUM');
+    const [status, setStatus] = useState('TODO');
     const [clientId, setClientId] = useState('');
     const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
     const [dueDate, setDueDate] = useState('');
@@ -35,6 +36,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
             setTitle(task.title || '');
             setDescription(task.description || '');
             setPriority(task.priority || 'MEDIUM');
+            setStatus(task.status || 'TODO');
             setClientId(task.clientId || '');
             setAssigneeIds(task.assignees?.map((u: any) => u.id) || []);
             setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
@@ -45,6 +47,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
             setTitle('');
             setDescription('');
             setPriority('MEDIUM');
+            setStatus('TODO');
             setClientId('');
             setAssigneeIds([]);
             setDueDate('');
@@ -84,11 +87,11 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
             title,
             description,
             priority,
+            status,
             clientId: clientId || undefined,
             assigneeIds,
             dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
             spentTime: Number(spentTime),
-            status: task?.status || 'NEW',
             customFields
         });
     };
@@ -195,6 +198,23 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
                                     </select>
                                 </div>
 
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-1">
+                                        Статус
+                                    </label>
+                                    <select
+                                        value={status}
+                                        onChange={(e) => setStatus(e.target.value)}
+                                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                    >
+                                        <option value="TODO">К выполнению</option>
+                                        <option value="IN_PROGRESS">В работе</option>
+                                        <option value="DONE">Выполнено</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-foreground mb-1">
                                         Срок

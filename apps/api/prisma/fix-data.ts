@@ -3,17 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function fixData() {
-    console.log('🔄 Fixing data: removing PAUSED status and setting 2025 dates...');
+    console.log('🔄 Fixing data: setting 2025 dates...');
 
     try {
-        // 1. Migrate PAUSED tasks to NEW
-        const pausedTasks = await prisma.task.updateMany({
-            where: { status: 'PAUSED' },
-            data: { status: 'NEW' },
-        });
-        console.log(`✅ Migrated ${pausedTasks.count} tasks from PAUSED to NEW.`);
-
-        // 2. Set random 2025 dates for ALL tasks
+        // Set random 2025 dates for ALL tasks
         const allTasks = await prisma.task.findMany();
         console.log(`📅 Updating dates for ${allTasks.length} tasks...`);
 

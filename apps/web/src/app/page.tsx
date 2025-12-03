@@ -14,10 +14,10 @@ export default function Home() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-3">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Добро пожаловать, {user?.name || 'Гость'}! 👋
+        <h1 className="text-xl font-bold tracking-tight text-foreground">
+          Добро пожаловать в Task Tracker
         </h1>
         <p className="text-muted-foreground mt-2">
           Вот обзор ваших задач и активности на сегодня.

@@ -324,7 +324,7 @@ export default function SettingsPage() {
                         </label>
                     </div>
                     <div className="mt-4 text-xs text-muted-foreground">
-                        <p>Поддерживаемые поля: title, description, status, priority, assigneeEmail, dueDate, spentTime</p>
+                        <p>Поддерживаемые поля: title, description, priority, assigneeEmail, dueDate, spentTime</p>
                     </div>
                 </div>
             </section>

@@ -29,8 +29,8 @@ export default function Sidebar() {
     ];
 
     return (
-        <aside className="w-64 border-r border-border/40 bg-muted/10 hidden md:block">
-            <div className="p-4 space-y-2">
+        <aside className="w-48 border-r border-border/40 bg-muted/10 hidden md:block">
+            <div className="p-2 space-y-0.5">
                 {mounted && links.map((link) => {
                     const Icon = link.icon;
                     const isActive = pathname === link.href;
@@ -40,13 +40,13 @@ export default function Sidebar() {
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                                "flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200",
                                 isActive
                                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                    : "text-foreground hover:bg-muted/50"
                             )}
                         >
-                            <Icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+                            <Icon className={cn("w-4 h-4", isActive ? "text-primary-foreground" : "text-foreground")} />
                             {link.label}
                         </Link>
                     );

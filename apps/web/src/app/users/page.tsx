@@ -48,8 +48,8 @@ export default function UsersPage() {
         <div className="space-y-6">
             <header className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Команда</h1>
-                    <p className="text-gray-900 dark:text-gray-400">Управление сотрудниками и их ролями.</p>
+                    <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Команда</h1>
+                    <p className="text-xs text-gray-900 dark:text-gray-400">Управление сотрудниками и их ролями.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex bg-muted p-1 rounded-lg">

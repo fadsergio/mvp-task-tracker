@@ -50,8 +50,8 @@ model Task {
   clientId       String?
   client         Client?     @relation(fields: [clientId], references: [id])
   assignees      User[]      @relation("AssigneeTasks")
-  status         TaskStatus  @default(NEW)
   priority       Priority    @default(MEDIUM)
+  status         TaskStatus  @default(TODO)
   dueDate        DateTime?
   tags           String[]    @default([])
   tenantId       String
@@ -66,11 +66,9 @@ model Task {
 }
 
 enum TaskStatus {
-  NEW
+  TODO
   IN_PROGRESS
-  REVIEW
   DONE
-  PAUSED
 }
 
 enum Priority {

@@ -34,11 +34,11 @@ export default function ClientsPage() {
     const [view, setView] = useState<'grid' | 'list'>('grid');
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-3">
             <header className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Клиенты</h1>
-                    <p className="text-gray-900">Управление клиентами и проектами.</p>
+                    <h1 className="text-xl font-bold tracking-tight text-gray-900">Клиенты</h1>
+                    <p className="text-xs text-gray-900">Управление клиентами и проектами.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="relative">
@@ -66,7 +66,7 @@ export default function ClientsPage() {
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 transition-colors font-medium"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
                     >
                         <Plus className="w-4 h-4" />
                         Новый клиент

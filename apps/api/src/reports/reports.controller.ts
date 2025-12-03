@@ -40,11 +40,10 @@ export class ReportsController {
 
     @Get('tasks')
     async getTaskReport(
-        @Query('groupBy') groupBy?: 'client' | 'status' | 'assignee',
+        @Query('groupBy') groupBy?: 'client' | 'assignee',
         @Query('dateFrom') dateFrom?: string,
         @Query('dateTo') dateTo?: string,
         @Query('clientId') clientId?: string,
-        @Query('status') status?: string,
         @Query('priority') priority?: string,
         @Query('export') exportFormat?: string,
         @Res() res?: Response,
@@ -54,7 +53,6 @@ export class ReportsController {
             dateFrom: dateFrom ? new Date(dateFrom) : undefined,
             dateTo: dateTo ? new Date(dateTo) : undefined,
             clientId,
-            status,
             priority,
         };
 
@@ -62,15 +60,9 @@ export class ReportsController {
 
         if (exportFormat === 'csv' && res) {
             // Для отчета по задачам нужно немного преобразовать данные перед CSV, 
-            // так как там вложенные объекты byStatus и byPriority
+            // так как там вложенные объекты byPriority
             const flattenedData = data.map(item => {
                 const flatItem: any = { ...item };
-                if (item.byStatus) {
-                    Object.keys(item.byStatus).forEach(status => {
-                        flatItem[`status_${status}`] = item.byStatus[status];
-                    });
-                    delete flatItem.byStatus;
-                }
                 if (item.byPriority) {
                     Object.keys(item.byPriority).forEach(priority => {
                         flatItem[`priority_${priority}`] = item.byPriority[priority];
@@ -87,5 +79,51 @@ export class ReportsController {
         }
 
         return res ? res.json(data) : data;
+    }
+
+    @Get('client/:clientId/detail')
+    async getClientDetail(
+        @Query('clientId') clientId: string,
+        @Query('dateFrom') dateFrom?: string,
+        @Query('dateTo') dateTo?: string,
+        @Query('priority') priority?: string,
+    ) {
+        const filters = {
+            clientId,
+            dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+            dateTo: dateTo ? new Date(dateTo) : undefined,
+            priority,
+        };
+        return await this.reportsService.getClientDetail(filters);
+    }
+
+    @Get('export/excel')
+    async exportExcel(@Query() filters: any, @Res() res: Response) {
+        // Convert string 'true'/'false' to boolean if needed
+        if (typeof filters.includeTaskDates === 'string') {
+            filters.includeTaskDates = filters.includeTaskDates === 'true';
+        }
+        const buffer = await this.reportsService.generateExcel(filters);
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': 'attachment; filename=report.xlsx',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
+    }
+
+    @Get('export/pdf')
+    async exportPDF(@Query() filters: any, @Res() res: Response) {
+        // Convert string 'true'/'false' to boolean if needed
+        if (typeof filters.includeTaskDates === 'string') {
+            filters.includeTaskDates = filters.includeTaskDates === 'true';
+        }
+        const buffer = await this.reportsService.generatePDF(filters);
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=report.pdf',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
     }
 }

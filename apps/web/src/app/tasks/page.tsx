@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/lib/api';
 import { Plus, LayoutList, Kanban, Loader2, Calendar, User as UserIcon, Edit } from 'lucide-react';
@@ -23,6 +23,31 @@ export default function TasksPage() {
         queryFn: tasksApi.getAll,
     });
 
+    // Auto-healing: Check if task blocks are valid (have status field)
+    // If not, reset to defaults. This fixes the issue where localStorage has old priority-based blocks
+    const { updateSettings, isLoaded } = useTaskSettings();
+
+    // Render-time validation: Ensure we always have valid blocks for rendering
+    const defaultBlocks = [
+        { id: 'todo', title: 'К выполнению', status: 'TODO', color: 'blue' },
+        { id: 'in_progress', title: 'В работе', status: 'IN_PROGRESS', color: 'yellow' },
+        { id: 'done', title: 'Выполнено', status: 'DONE', color: 'green' },
+    ];
+
+    const hasInvalidBlocks = settings.taskBlocks.some(b => !b.status || (b as any).priority);
+    const taskBlocks = hasInvalidBlocks ? defaultBlocks : settings.taskBlocks;
+
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        if (hasInvalidBlocks || settings.taskBlocks.length === 0) {
+            console.log('Fixing invalid task blocks...', settings.taskBlocks);
+            updateSettings({
+                taskBlocks: defaultBlocks
+            });
+        }
+    }, [isLoaded, hasInvalidBlocks, settings.taskBlocks, updateSettings]);
+
     const updateStatusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string; status: string }) =>
             tasksApi.update(id, { status }),
@@ -30,17 +55,6 @@ export default function TasksPage() {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
         },
     });
-
-    const getStatusLabel = (status: string) => {
-        switch (status) {
-            case 'NEW': return 'Новая';
-            case 'IN_PROGRESS': return 'В работе';
-            case 'REVIEW': return 'На проверке';
-            case 'DONE': return 'Готово';
-            case 'PAUSED': return 'На паузе';
-            default: return status;
-        }
-    };
 
     const handleDragStart = (e: React.DragEvent, taskId: string) => {
         e.dataTransfer.setData('taskId', taskId);
@@ -101,8 +115,8 @@ export default function TasksPage() {
         <div className="space-y-6">
             <header className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Задачи</h1>
-                    <p className="text-muted-foreground">Управление задачами и проектами.</p>
+                    <h1 className="text-xl font-bold tracking-tight text-foreground">Задачи</h1>
+                    <p className="text-xs text-muted-foreground">Управление задачами и проектами.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex bg-muted p-1 rounded-lg">
@@ -148,13 +162,13 @@ export default function TasksPage() {
                 <TaskTable
                     tasks={tasks || []}
                     layout={settings.layout}
-                    taskBlocks={settings.taskBlocks}
+                    taskBlocks={taskBlocks}
                     customColumns={settings.customColumns || []}
                     onEdit={handleEdit}
                 />
             ) : view === 'kanban' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-12rem)] overflow-x-auto">
-                    {settings.taskBlocks.map((block) => (
+                    {taskBlocks.map((block) => (
                         <div
                             key={block.id}
                             className={`rounded-lg p-4 flex flex-col gap-3 h-full border-2 ${block.color === 'blue' ? 'border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20' :
@@ -165,19 +179,19 @@ export default function TasksPage() {
                                                 'border-gray-500/30 bg-gray-50/50 dark:bg-gray-950/20'
                                 }`}
                             onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, block.statuses[0])} // Drop to the first status in the block
+                            onDrop={(e) => handleDrop(e, block.status || 'TODO')}
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider">
                                     {block.title}
                                 </h3>
                                 <span className="text-xs text-muted-foreground bg-background/50 px-2 py-1 rounded-full border border-border/50">
-                                    {tasks?.filter((t: any) => block.statuses.includes(t.status)).length || 0}
+                                    {tasks?.filter((t: any) => t.status === block.status).length || 0}
                                 </span>
                             </div>
 
                             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                                {tasks?.filter((t: any) => block.statuses.includes(t.status)).map((task: any) => (
+                                {tasks?.filter((t: any) => t.status === block.status).map((task: any) => (
                                     <div
                                         key={task.id}
                                         draggable

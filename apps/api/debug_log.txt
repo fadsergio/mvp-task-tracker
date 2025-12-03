@@ -1,0 +1,193 @@
+2025-12-02T10:51:43.765Z: Starting PDF generation...
+2025-12-02T10:51:43.770Z: Data fetched: 8 items
+2025-12-02T10:51:43.771Z: PDFDocument class loaded
+2025-12-02T10:51:43.778Z: PDFDocument instance created
+2025-12-02T10:51:43.778Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\src\fonts
+2025-12-02T10:51:43.778Z: Checking font files existence...
+2025-12-02T10:51:43.779Z: Regular font exists: false
+2025-12-02T10:51:43.779Z: Bold font exists: false
+2025-12-02T10:51:43.779Z: Fonts registered successfully
+2025-12-02T10:51:43.794Z: Error in PDF generation promise: ENOENT: no such file or directory, open 'C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\src\fonts\Roboto-Bold.ttf'
+Error: ENOENT: no such file or directory, open 'C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\src\fonts\Roboto-Bold.ttf'
+    at Object.openSync (node:fs:560:18)
+    at Object.readFileSync (node:fs:444:35)
+    at PDFFontFactory.open (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\pdfkit@0.17.2\node_modules\pdfkit\lib\font_factory.js:14:16)
+    at PDFDocument.font (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\pdfkit@0.17.2\node_modules\pdfkit\lib\mixins\fonts.js:85:33)
+    at <anonymous> (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.service.ts:335:38)
+    at new Promise (<anonymous>)
+    at ReportsService.generatePDF (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.service.ts:296:20)
+    at async ReportsController.exportPDF (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.controller.ts:104:24)
+2025-12-02T10:56:25.445Z: Starting PDF generation...
+2025-12-02T10:56:25.452Z: Data fetched: 8 items
+2025-12-02T10:56:25.453Z: PDFDocument class loaded
+2025-12-02T10:56:25.459Z: PDFDocument instance created
+2025-12-02T10:56:25.459Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T10:56:25.460Z: Checking font files existence...
+2025-12-02T10:56:25.460Z: Regular font exists: true
+2025-12-02T10:56:25.460Z: Bold font exists: true
+2025-12-02T10:56:25.460Z: Fonts registered successfully
+2025-12-02T10:56:25.534Z: PDF generation completed (stream ended)
+2025-12-02T10:56:25.534Z: PDF generation finished, resolving buffer
+2025-12-02T10:56:45.874Z: Starting PDF generation...
+Error in generatePDF: 
+Invalid `this.prisma.task.findMany()` invocation in
+C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.service.ts:132:46
+
+  129 if (filters.clientId) where.clientId = filters.clientId;
+  130 if (filters.priority) where.priority = filters.priority;
+  131 
+→ 132 const tasks = await this.prisma.task.findMany({
+        where: {
+          createdAt: {
+            gte: "2025-09-01",
+                 ~~~~~~~~~~~~
+            lte: "2025-12-02"
+          }
+        },
+        include: {
+          client: true,
+          assignees: true
+        }
+      })
+
+Invalid value for argument `gte`: premature end of input. Expected ISO-8601 DateTime.
+PrismaClientValidationError: 
+Invalid `this.prisma.task.findMany()` invocation in
+C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.service.ts:132:46
+
+  129 if (filters.clientId) where.clientId = filters.clientId;
+  130 if (filters.priority) where.priority = filters.priority;
+  131 
+→ 132 const tasks = await this.prisma.task.findMany({
+        where: {
+          createdAt: {
+            gte: "2025-09-01",
+                 ~~~~~~~~~~~~
+            lte: "2025-12-02"
+          }
+        },
+        include: {
+          client: true,
+          assignees: true
+        }
+      })
+
+Invalid value for argument `gte`: premature end of input. Expected ISO-8601 DateTime.
+    at throwValidationException (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\@prisma+client@6.19.0_prism_0ade0c2032e7f19289902b884120cfab\node_modules\@prisma\client\src\runtime\core\errorRendering\throwValidationException.ts:45:9)
+    at ei.handleRequestError (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\@prisma+client@6.19.0_prism_0ade0c2032e7f19289902b884120cfab\node_modules\@prisma\client\src\runtime\RequestHandler.ts:202:7)
+    at ei.handleAndLogRequestError (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\@prisma+client@6.19.0_prism_0ade0c2032e7f19289902b884120cfab\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+    at ei.request (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\@prisma+client@6.19.0_prism_0ade0c2032e7f19289902b884120cfab\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+    at async a (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\node_modules\.pnpm\@prisma+client@6.19.0_prism_0ade0c2032e7f19289902b884120cfab\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
+    at async ReportsService.generateTaskReport (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.service.ts:132:23)
+    at async ReportsService.generatePDF (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.service.ts:293:26)
+    at async ReportsController.exportPDF (C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\src\reports\reports.controller.ts:104:24)
+2025-12-02T11:00:37.898Z: Starting PDF generation...
+2025-12-02T11:00:37.904Z: Data fetched: 8 items
+2025-12-02T11:00:37.904Z: PDFDocument class loaded
+2025-12-02T11:00:37.911Z: PDFDocument instance created
+2025-12-02T11:00:37.911Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:00:37.911Z: Checking font files existence...
+2025-12-02T11:00:37.912Z: Regular font exists: true
+2025-12-02T11:00:37.912Z: Bold font exists: true
+2025-12-02T11:00:37.912Z: Fonts registered successfully
+2025-12-02T11:00:38.000Z: PDF generation completed (stream ended)
+2025-12-02T11:00:38.001Z: PDF generation finished, resolving buffer
+2025-12-02T11:03:34.884Z: Starting PDF generation...
+2025-12-02T11:03:34.890Z: Data fetched: 8 items
+2025-12-02T11:03:34.891Z: PDFDocument class loaded
+2025-12-02T11:03:34.894Z: PDFDocument instance created
+2025-12-02T11:03:34.894Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:03:34.894Z: Checking font files existence...
+2025-12-02T11:03:34.894Z: Regular font exists: true
+2025-12-02T11:03:34.895Z: Bold font exists: true
+2025-12-02T11:03:34.895Z: Fonts registered successfully
+2025-12-02T11:03:34.955Z: PDF generation completed (stream ended)
+2025-12-02T11:03:34.956Z: PDF generation finished, resolving buffer
+2025-12-02T11:12:32.949Z: Starting PDF generation...
+2025-12-02T11:12:32.955Z: Data fetched: 8 items
+2025-12-02T11:12:32.956Z: PDFDocument class loaded
+2025-12-02T11:12:32.963Z: PDFDocument instance created
+2025-12-02T11:12:32.963Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:12:32.963Z: Checking font files existence...
+2025-12-02T11:12:32.964Z: Regular font exists: true
+2025-12-02T11:12:32.964Z: Bold font exists: true
+2025-12-02T11:12:32.964Z: Fonts registered successfully
+2025-12-02T11:12:33.048Z: PDF generation completed (stream ended)
+2025-12-02T11:12:33.049Z: PDF generation finished, resolving buffer
+2025-12-02T11:12:56.396Z: Starting PDF generation...
+2025-12-02T11:12:56.403Z: Data fetched: 1 items
+2025-12-02T11:12:56.403Z: PDFDocument class loaded
+2025-12-02T11:12:56.406Z: PDFDocument instance created
+2025-12-02T11:12:56.406Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:12:56.406Z: Checking font files existence...
+2025-12-02T11:12:56.407Z: Regular font exists: true
+2025-12-02T11:12:56.407Z: Bold font exists: true
+2025-12-02T11:12:56.407Z: Fonts registered successfully
+2025-12-02T11:12:56.454Z: PDF generation completed (stream ended)
+2025-12-02T11:12:56.454Z: PDF generation finished, resolving buffer
+2025-12-02T11:13:30.512Z: Starting PDF generation...
+2025-12-02T11:13:30.515Z: Data fetched: 0 items
+2025-12-02T11:13:30.516Z: PDFDocument class loaded
+2025-12-02T11:13:30.522Z: PDFDocument instance created
+2025-12-02T11:13:30.523Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:13:30.523Z: Checking font files existence...
+2025-12-02T11:13:30.523Z: Regular font exists: true
+2025-12-02T11:13:30.524Z: Bold font exists: true
+2025-12-02T11:13:30.524Z: Fonts registered successfully
+2025-12-02T11:13:30.587Z: PDF generation completed (stream ended)
+2025-12-02T11:13:30.588Z: PDF generation finished, resolving buffer
+2025-12-02T11:13:36.154Z: Starting PDF generation...
+2025-12-02T11:13:36.159Z: Data fetched: 0 items
+2025-12-02T11:13:36.159Z: PDFDocument class loaded
+2025-12-02T11:13:36.163Z: PDFDocument instance created
+2025-12-02T11:13:36.163Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:13:36.164Z: Checking font files existence...
+2025-12-02T11:13:36.164Z: Regular font exists: true
+2025-12-02T11:13:36.164Z: Bold font exists: true
+2025-12-02T11:13:36.164Z: Fonts registered successfully
+2025-12-02T11:13:36.217Z: PDF generation completed (stream ended)
+2025-12-02T11:13:36.217Z: PDF generation finished, resolving buffer
+2025-12-02T11:13:46.305Z: Starting PDF generation...
+2025-12-02T11:13:46.312Z: Data fetched: 1 items
+2025-12-02T11:13:46.312Z: PDFDocument class loaded
+2025-12-02T11:13:46.317Z: PDFDocument instance created
+2025-12-02T11:13:46.317Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:13:46.317Z: Checking font files existence...
+2025-12-02T11:13:46.318Z: Regular font exists: true
+2025-12-02T11:13:46.318Z: Bold font exists: true
+2025-12-02T11:13:46.318Z: Fonts registered successfully
+2025-12-02T11:13:46.369Z: PDF generation completed (stream ended)
+2025-12-02T11:13:46.369Z: PDF generation finished, resolving buffer
+2025-12-02T11:13:56.332Z: Starting PDF generation...
+2025-12-02T11:13:56.334Z: Data fetched: 0 items
+2025-12-02T11:13:56.334Z: PDFDocument class loaded
+2025-12-02T11:13:56.337Z: PDFDocument instance created
+2025-12-02T11:13:56.337Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:13:56.338Z: Checking font files existence...
+2025-12-02T11:13:56.338Z: Regular font exists: true
+2025-12-02T11:13:56.338Z: Bold font exists: true
+2025-12-02T11:13:56.339Z: Fonts registered successfully
+2025-12-02T11:13:56.383Z: PDF generation completed (stream ended)
+2025-12-02T11:13:56.383Z: PDF generation finished, resolving buffer
+2025-12-02T11:14:29.018Z: Starting PDF generation...
+2025-12-02T11:14:29.023Z: Data fetched: 8 items
+2025-12-02T11:14:29.023Z: PDFDocument class loaded
+2025-12-02T11:14:29.027Z: PDFDocument instance created
+2025-12-02T11:14:29.027Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:14:29.027Z: Checking font files existence...
+2025-12-02T11:14:29.028Z: Regular font exists: true
+2025-12-02T11:14:29.028Z: Bold font exists: true
+2025-12-02T11:14:29.028Z: Fonts registered successfully
+2025-12-02T11:14:29.076Z: PDF generation completed (stream ended)
+2025-12-02T11:14:29.076Z: PDF generation finished, resolving buffer
+2025-12-02T11:21:54.305Z: Starting PDF generation...
+2025-12-02T11:21:54.310Z: Data fetched: 1 items
+2025-12-02T11:21:54.310Z: PDFDocument class loaded
+2025-12-02T11:21:54.317Z: PDFDocument instance created
+2025-12-02T11:21:54.317Z: Resolved fonts path: C:\Users\user\.gemini\antigravity\scratch\mvp-task-tracker\apps\api\dist\fonts
+2025-12-02T11:21:54.317Z: Checking font files existence...
+2025-12-02T11:21:54.318Z: Regular font exists: true
+2025-12-02T11:21:54.318Z: Bold font exists: true
+2025-12-02T11:21:54.318Z: Fonts registered successfully
+2025-12-02T11:21:54.386Z: PDF generation completed (stream ended)
+2025-12-02T11:21:54.387Z: PDF generation finished, resolving buffer
