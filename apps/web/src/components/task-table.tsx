@@ -216,7 +216,7 @@ export default function TaskTable({ tasks, layout, taskBlocks, customColumns = [
                                                         {task.spentTime || 0} {t('common.hours')}
                                                     </td>
                                                     <td className="px-6 py-4 text-foreground">
-                                                        {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: dateLocale }) : '-'}
+                                                        {task.dueDate ? format(new Date(task.dueDate), 'dd.MM.yyyy') : '-'}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <button
@@ -273,7 +273,7 @@ export default function TaskTable({ tasks, layout, taskBlocks, customColumns = [
                                 </div>
                                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                                     {task.dueDate && (
-                                        <span>{format(new Date(task.dueDate), 'd MMM', { locale: dateLocale })}</span>
+                                        <span>{format(new Date(task.dueDate), 'dd.MM')}</span>
                                     )}
                                 </div>
                             </div>
@@ -322,7 +322,7 @@ export default function TaskTable({ tasks, layout, taskBlocks, customColumns = [
                                         <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('tasks.due_date')}</h3>
                                         <div className="flex items-center gap-2 text-foreground">
                                             <Calendar className="w-4 h-4 text-muted-foreground" />
-                                            {selectedTask.dueDate ? format(new Date(selectedTask.dueDate), 'd MMMM yyyy', { locale: dateLocale }) : '-'}
+                                            {selectedTask.dueDate ? format(new Date(selectedTask.dueDate), 'dd.MM.yyyy') : '-'}
                                         </div>
                                     </div>
                                     <div>
@@ -452,7 +452,7 @@ export default function TaskTable({ tasks, layout, taskBlocks, customColumns = [
                                 {task.spentTime || 0} {t('common.hours')}
                             </td>
                             <td className="px-6 py-4 text-foreground">
-                                {task.dueDate ? format(new Date(task.dueDate), 'd MMM yyyy', { locale: dateLocale }) : '-'}
+                                {task.dueDate ? format(new Date(task.dueDate), 'dd.MM.yyyy') : '-'}
                             </td>
                             <td className="px-6 py-4">
                                 <button

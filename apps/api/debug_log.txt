@@ -191,3 +191,15 @@ Invalid value for argument `gte`: premature end of input. Expected ISO-8601 Date
 2025-12-02T11:21:54.318Z: Fonts registered successfully
 2025-12-02T11:21:54.386Z: PDF generation completed (stream ended)
 2025-12-02T11:21:54.387Z: PDF generation finished, resolving buffer
+2025-12-05T20:35:01.126Z: Starting PDF generation...
+2025-12-05T20:35:01.127Z: includeTaskDates parameter: false
+2025-12-05T20:35:01.142Z: Data fetched: 9 items
+2025-12-05T20:35:01.143Z: PDFDocument class loaded
+2025-12-05T20:35:01.161Z: PDFDocument instance created
+2025-12-05T20:35:01.162Z: Resolved fonts path: /usr/src/app/dist/fonts
+2025-12-05T20:35:01.169Z: Checking font files existence...
+2025-12-05T20:35:01.176Z: Regular font exists: true
+2025-12-05T20:35:01.182Z: Bold font exists: true
+2025-12-05T20:35:01.187Z: Fonts registered successfully
+2025-12-05T20:35:01.368Z: PDF generation completed (stream ended)
+2025-12-05T20:35:01.369Z: PDF generation finished, resolving buffer

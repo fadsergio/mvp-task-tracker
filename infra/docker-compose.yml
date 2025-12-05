@@ -48,7 +48,7 @@ services:
       - /usr/src/app/node_modules
     networks:
       - app_network
-    command: pnpm start:dev
+    command: npm run start:dev
 
   web:
     build:

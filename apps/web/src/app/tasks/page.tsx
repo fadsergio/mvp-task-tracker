@@ -3,16 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tasksApi } from '@/lib/api';
-import { Plus, LayoutList, Kanban, Loader2, Calendar, User as UserIcon, Edit } from 'lucide-react';
+import { Plus, LayoutList, Kanban, Loader2, Calendar, User as UserIcon, Edit, GanttChartSquare } from 'lucide-react';
 import TaskModal from '@/components/task-modal';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useTaskSettings } from '@/hooks/use-task-settings';
 import TaskTable from '@/components/task-table';
 import CalendarView from '@/components/calendar-view';
+import GanttChart from '@/components/gantt-chart';
 
 export default function TasksPage() {
-    const [view, setView] = useState<'table' | 'kanban' | 'calendar'>('table');
+    const [view, setView] = useState<'table' | 'kanban' | 'calendar' | 'gantt'>('table');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const queryClient = useQueryClient();
@@ -102,12 +103,16 @@ export default function TasksPage() {
     const availableViews = [];
     if (settings.enabledViews?.table ?? true) availableViews.push('table');
     if (settings.enabledViews?.kanban ?? true) availableViews.push('kanban');
+    if (settings.enabledViews?.gantt ?? true) availableViews.push('gantt');
 
     // If current view is disabled, switch to the first available view
     if (view === 'table' && !(settings.enabledViews?.table ?? true)) {
         if (availableViews.length > 0) setView(availableViews[0] as any);
     }
     if (view === 'kanban' && !(settings.enabledViews?.kanban ?? true)) {
+        if (availableViews.length > 0) setView(availableViews[0] as any);
+    }
+    if (view === 'gantt' && !(settings.enabledViews?.gantt ?? true)) {
         if (availableViews.length > 0) setView(availableViews[0] as any);
     }
 
@@ -138,6 +143,16 @@ export default function TasksPage() {
                                 title="Режим Канбан"
                             >
                                 <Kanban className="w-4 h-4" />
+                            </button>
+                        )}
+                        {(settings.enabledViews?.gantt ?? true) && (
+                            <button
+                                onClick={() => setView('gantt')}
+                                disabled={availableViews.length === 1}
+                                className={`p-2 rounded-md transition-all ${view === 'gantt' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'} ${availableViews.length === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title="Режим Гант"
+                            >
+                                <GanttChartSquare className="w-4 h-4" />
                             </button>
                         )}
                         <button
@@ -233,6 +248,25 @@ export default function TasksPage() {
                         </div>
                     ))}
                 </div>
+            ) : view === 'gantt' ? (
+                <GanttChart
+                    tasks={tasks || []}
+                    colorBy={settings.ganttSettings?.colorBy || 'priority'}
+                    colors={settings.ganttSettings?.colors || {
+                        priority: { HIGH: '#ef4444', MEDIUM: '#eab308', LOW: '#22c55e' },
+                        status: { TODO: '#3b82f6', IN_PROGRESS: '#eab308', DONE: '#22c55e' }
+                    }}
+                    onEdit={handleEdit}
+                    onColorChange={(newColors) => {
+                        updateSettings({
+                            ganttSettings: {
+                                ...settings.ganttSettings,
+                                colorBy: settings.ganttSettings?.colorBy || 'priority',
+                                colors: newColors
+                            }
+                        });
+                    }}
+                />
             ) : (
                 <CalendarView tasks={tasks || []} onEdit={handleEdit} />
             )}

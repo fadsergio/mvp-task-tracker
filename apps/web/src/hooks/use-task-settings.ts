@@ -22,6 +22,7 @@ export interface TaskSettings {
     enabledViews: {
         table: boolean;
         kanban: boolean;
+        gantt: boolean;
     };
     visibleColumns: {
         status: boolean;
@@ -37,6 +38,21 @@ export interface TaskSettings {
         rowsPerPage: 10 | 25 | 50 | 100;
         defaultSort: { field: string; order: 'asc' | 'desc' };
     };
+    ganttSettings: {
+        colorBy: 'priority' | 'status';
+        colors: {
+            priority: {
+                HIGH: string;
+                MEDIUM: string;
+                LOW: string;
+            };
+            status: {
+                TODO: string;
+                IN_PROGRESS: string;
+                DONE: string;
+            };
+        };
+    };
 }
 
 interface TaskSettingsStore {
@@ -50,6 +66,7 @@ const defaultSettings: TaskSettings = {
     enabledViews: {
         table: true,
         kanban: true,
+        gantt: true,
     },
     visibleColumns: {
         status: true,
@@ -68,6 +85,21 @@ const defaultSettings: TaskSettings = {
     tableSettings: {
         rowsPerPage: 25,
         defaultSort: { field: 'createdAt', order: 'desc' },
+    },
+    ganttSettings: {
+        colorBy: 'priority',
+        colors: {
+            priority: {
+                HIGH: '#ef4444',
+                MEDIUM: '#eab308',
+                LOW: '#22c55e',
+            },
+            status: {
+                TODO: '#3b82f6',
+                IN_PROGRESS: '#eab308',
+                DONE: '#22c55e',
+            },
+        },
     },
 };
 

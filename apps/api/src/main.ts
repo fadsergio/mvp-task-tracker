@@ -13,6 +13,6 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
-  await app.listen(3005);
+  await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
 bootstrap();

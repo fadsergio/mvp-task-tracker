@@ -117,9 +117,270 @@ export default function SettingsPage() {
                                 className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
                             />
                         </label>
+                        <label className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all border-2 ${settings.enabledViews?.gantt ?? true
+                            ? 'bg-primary/5 border-primary/30 shadow-sm'
+                            : 'bg-muted/20 border-border/30 opacity-60'
+                            }`}>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold text-foreground">{t('settings.mode_gantt')}</span>
+                                    {(settings.enabledViews?.gantt ?? true) && (
+                                        <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
+                                            {t('settings.active')}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">{t('settings.mode_gantt_desc')}</p>
+                            </div>
+                            <input
+                                type="checkbox"
+                                checked={settings.enabledViews?.gantt ?? true}
+                                onChange={(e) => {
+                                    if (!e.target.checked && !(settings.enabledViews?.table ?? true) && !(settings.enabledViews?.kanban ?? true)) return;
+                                    updateSettings({
+                                        enabledViews: {
+                                            table: settings.enabledViews?.table ?? true,
+                                            kanban: settings.enabledViews?.kanban ?? true,
+                                            gantt: e.target.checked
+                                        }
+                                    });
+                                }}
+                                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                        </label>
                     </div>
                 </div>
             </section>
+
+            {/* Настройки режима "Гант" */}
+            {(settings.enabledViews?.gantt ?? true) && (
+                <section className="space-y-4 pl-6 border-l-4 border-primary/30">
+                    <div>
+                        <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h10" /><path d="M6 12h9" /><path d="M11 18h7" /></svg>
+                            Настройки режима "Гант"
+                        </h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Эти настройки применяются только в режиме "Гант"
+                        </p>
+                    </div>
+
+                    <div className="glass-card p-6 rounded-xl border border-border/40">
+                        <h3 className="text-sm font-semibold text-foreground mb-3">{t('settings.gantt_color_by')}</h3>
+                        <div className="space-y-2">
+                            <label className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border-2 ${settings.ganttSettings?.colorBy === 'priority'
+                                ? 'bg-primary/5 border-primary/30 shadow-sm'
+                                : 'border-border/30 hover:border-primary/20'
+                                }`}>
+                                <span className="text-sm text-foreground">{t('settings.gantt_color_priority')}</span>
+                                <input
+                                    type="radio"
+                                    name="ganttColorBy"
+                                    checked={settings.ganttSettings?.colorBy === 'priority'}
+                                    onChange={() => updateSettings({
+                                        ganttSettings: {
+                                            colorBy: 'priority'
+                                        }
+                                    })}
+                                    className="w-4 h-4 text-primary focus:ring-primary"
+                                />
+                            </label>
+                            <label className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border-2 ${settings.ganttSettings?.colorBy === 'status'
+                                ? 'bg-primary/5 border-primary/30 shadow-sm'
+                                : 'border-border/30 hover:border-primary/20'
+                                }`}>
+                                <span className="text-sm text-foreground">{t('settings.gantt_color_status')}</span>
+                                <input
+                                    type="radio"
+                                    name="ganttColorBy"
+                                    checked={settings.ganttSettings?.colorBy === 'status'}
+                                    onChange={() => updateSettings({
+                                        ganttSettings: {
+                                            colorBy: 'status'
+                                        }
+                                    })}
+                                    className="w-4 h-4 text-primary focus:ring-primary"
+                                />
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Настройка цветов */}
+                    <div className="glass-card p-6 rounded-xl border border-border/40 space-y-4">
+                        <h3 className="text-sm font-semibold text-foreground">Настройка цветов</h3>
+
+                        {settings.ganttSettings?.colorBy === 'priority' ? (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm text-foreground">Высокий приоритет</label>
+                                    <input
+                                        type="color"
+                                        value={settings.ganttSettings?.colors?.priority?.HIGH || '#ef4444'}
+                                        onChange={(e) => updateSettings({
+                                            ganttSettings: {
+                                                ...settings.ganttSettings,
+                                                colors: {
+                                                    ...settings.ganttSettings?.colors,
+                                                    priority: {
+                                                        ...settings.ganttSettings?.colors?.priority,
+                                                        HIGH: e.target.value,
+                                                        MEDIUM: settings.ganttSettings?.colors?.priority?.MEDIUM || '#eab308',
+                                                        LOW: settings.ganttSettings?.colors?.priority?.LOW || '#22c55e',
+                                                    },
+                                                    status: settings.ganttSettings?.colors?.status || {
+                                                        TODO: '#3b82f6',
+                                                        IN_PROGRESS: '#eab308',
+                                                        DONE: '#22c55e',
+                                                    },
+                                                },
+                                            }
+                                        })}
+                                        className="w-12 h-8 rounded border border-border cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm text-foreground">Средний приоритет</label>
+                                    <input
+                                        type="color"
+                                        value={settings.ganttSettings?.colors?.priority?.MEDIUM || '#eab308'}
+                                        onChange={(e) => updateSettings({
+                                            ganttSettings: {
+                                                ...settings.ganttSettings,
+                                                colors: {
+                                                    ...settings.ganttSettings?.colors,
+                                                    priority: {
+                                                        ...settings.ganttSettings?.colors?.priority,
+                                                        HIGH: settings.ganttSettings?.colors?.priority?.HIGH || '#ef4444',
+                                                        MEDIUM: e.target.value,
+                                                        LOW: settings.ganttSettings?.colors?.priority?.LOW || '#22c55e',
+                                                    },
+                                                    status: settings.ganttSettings?.colors?.status || {
+                                                        TODO: '#3b82f6',
+                                                        IN_PROGRESS: '#eab308',
+                                                        DONE: '#22c55e',
+                                                    },
+                                                },
+                                            }
+                                        })}
+                                        className="w-12 h-8 rounded border border-border cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm text-foreground">Низкий приоритет</label>
+                                    <input
+                                        type="color"
+                                        value={settings.ganttSettings?.colors?.priority?.LOW || '#22c55e'}
+                                        onChange={(e) => updateSettings({
+                                            ganttSettings: {
+                                                ...settings.ganttSettings,
+                                                colors: {
+                                                    ...settings.ganttSettings?.colors,
+                                                    priority: {
+                                                        ...settings.ganttSettings?.colors?.priority,
+                                                        HIGH: settings.ganttSettings?.colors?.priority?.HIGH || '#ef4444',
+                                                        MEDIUM: settings.ganttSettings?.colors?.priority?.MEDIUM || '#eab308',
+                                                        LOW: e.target.value,
+                                                    },
+                                                    status: settings.ganttSettings?.colors?.status || {
+                                                        TODO: '#3b82f6',
+                                                        IN_PROGRESS: '#eab308',
+                                                        DONE: '#22c55e',
+                                                    },
+                                                },
+                                            }
+                                        })}
+                                        className="w-12 h-8 rounded border border-border cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm text-foreground">К выполнению</label>
+                                    <input
+                                        type="color"
+                                        value={settings.ganttSettings?.colors?.status?.TODO || '#3b82f6'}
+                                        onChange={(e) => updateSettings({
+                                            ganttSettings: {
+                                                ...settings.ganttSettings,
+                                                colors: {
+                                                    ...settings.ganttSettings?.colors,
+                                                    priority: settings.ganttSettings?.colors?.priority || {
+                                                        HIGH: '#ef4444',
+                                                        MEDIUM: '#eab308',
+                                                        LOW: '#22c55e',
+                                                    },
+                                                    status: {
+                                                        ...settings.ganttSettings?.colors?.status,
+                                                        TODO: e.target.value,
+                                                        IN_PROGRESS: settings.ganttSettings?.colors?.status?.IN_PROGRESS || '#eab308',
+                                                        DONE: settings.ganttSettings?.colors?.status?.DONE || '#22c55e',
+                                                    },
+                                                },
+                                            }
+                                        })}
+                                        className="w-12 h-8 rounded border border-border cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm text-foreground">В работе</label>
+                                    <input
+                                        type="color"
+                                        value={settings.ganttSettings?.colors?.status?.IN_PROGRESS || '#eab308'}
+                                        onChange={(e) => updateSettings({
+                                            ganttSettings: {
+                                                ...settings.ganttSettings,
+                                                colors: {
+                                                    ...settings.ganttSettings?.colors,
+                                                    priority: settings.ganttSettings?.colors?.priority || {
+                                                        HIGH: '#ef4444',
+                                                        MEDIUM: '#eab308',
+                                                        LOW: '#22c55e',
+                                                    },
+                                                    status: {
+                                                        ...settings.ganttSettings?.colors?.status,
+                                                        TODO: settings.ganttSettings?.colors?.status?.TODO || '#3b82f6',
+                                                        IN_PROGRESS: e.target.value,
+                                                        DONE: settings.ganttSettings?.colors?.status?.DONE || '#22c55e',
+                                                    },
+                                                },
+                                            }
+                                        })}
+                                        className="w-12 h-8 rounded border border-border cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm text-foreground">Готово</label>
+                                    <input
+                                        type="color"
+                                        value={settings.ganttSettings?.colors?.status?.DONE || '#22c55e'}
+                                        onChange={(e) => updateSettings({
+                                            ganttSettings: {
+                                                ...settings.ganttSettings,
+                                                colors: {
+                                                    ...settings.ganttSettings?.colors,
+                                                    priority: settings.ganttSettings?.colors?.priority || {
+                                                        HIGH: '#ef4444',
+                                                        MEDIUM: '#eab308',
+                                                        LOW: '#22c55e',
+                                                    },
+                                                    status: {
+                                                        ...settings.ganttSettings?.colors?.status,
+                                                        TODO: settings.ganttSettings?.colors?.status?.TODO || '#3b82f6',
+                                                        IN_PROGRESS: settings.ganttSettings?.colors?.status?.IN_PROGRESS || '#eab308',
+                                                        DONE: e.target.value,
+                                                    },
+                                                },
+                                            }
+                                        })}
+                                        className="w-12 h-8 rounded border border-border cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
             {/* Настройки режима "Список" */}
             {(settings.enabledViews?.table ?? true) && (
