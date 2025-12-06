@@ -40,6 +40,7 @@ export interface TaskSettings {
     };
     ganttSettings: {
         colorBy: 'priority' | 'status';
+        timeScale: 'day' | 'week' | 'month';
         colors: {
             priority: {
                 HIGH: string;
@@ -88,6 +89,7 @@ const defaultSettings: TaskSettings = {
     },
     ganttSettings: {
         colorBy: 'priority',
+        timeScale: 'month',
         colors: {
             priority: {
                 HIGH: '#ef4444',

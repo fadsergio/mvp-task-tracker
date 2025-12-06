@@ -252,6 +252,7 @@ export default function TasksPage() {
                 <GanttChart
                     tasks={tasks || []}
                     colorBy={settings.ganttSettings?.colorBy || 'priority'}
+                    timeScale={settings.ganttSettings?.timeScale || 'month'}
                     colors={settings.ganttSettings?.colors || {
                         priority: { HIGH: '#ef4444', MEDIUM: '#eab308', LOW: '#22c55e' },
                         status: { TODO: '#3b82f6', IN_PROGRESS: '#eab308', DONE: '#22c55e' }
@@ -262,7 +263,21 @@ export default function TasksPage() {
                             ganttSettings: {
                                 ...settings.ganttSettings,
                                 colorBy: settings.ganttSettings?.colorBy || 'priority',
+                                timeScale: settings.ganttSettings?.timeScale || 'month',
                                 colors: newColors
+                            }
+                        });
+                    }}
+                    onTimeScaleChange={(newTimeScale) => {
+                        updateSettings({
+                            ganttSettings: {
+                                ...settings.ganttSettings,
+                                colorBy: settings.ganttSettings?.colorBy || 'priority',
+                                timeScale: newTimeScale,
+                                colors: settings.ganttSettings?.colors || {
+                                    priority: { HIGH: '#ef4444', MEDIUM: '#eab308', LOW: '#22c55e' },
+                                    status: { TODO: '#3b82f6', IN_PROGRESS: '#eab308', DONE: '#22c55e' }
+                                }
                             }
                         });
                     }}
