@@ -109,6 +109,29 @@ export default function GanttChart({ tasks, colorBy, colors, onEdit, onColorChan
         return { leftPercent, widthPercent };
     };
 
+    // Вычисляем позицию текущей даты
+    const todayPosition = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (today < startDate || today > endDate) {
+            return null;
+        }
+
+        const offsetDays = differenceInDays(today, startDate);
+        return (offsetDays / totalDays) * 100;
+    }, [startDate, endDate, totalDays]);
+
+    // Проверка просроченных задач
+    const isOverdue = (task: Task) => {
+        if (task.status === 'DONE') return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dueDate = new Date(task.dueDate!);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate < today;
+    };
+
     if (tasksWithDates.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 bg-card rounded-lg border border-border">
@@ -163,8 +186,22 @@ export default function GanttChart({ tasks, colorBy, colors, onEdit, onColorChan
 
                             {/* Временная шкала */}
                             <div className="relative flex-1" style={{ height: '48px' }}>
+                                {/* Линия "Сегодня" */}
+                                {todayPosition !== null && (
+                                    <div
+                                        className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
+                                        style={{ left: `${todayPosition}%` }}
+                                        title="Сегодня"
+                                    >
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-500 whitespace-nowrap">
+                                            Сегодня
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div
-                                    className="absolute top-1/2 -translate-y-1/2 h-6 rounded cursor-pointer hover:opacity-80 transition-opacity flex items-center px-2"
+                                    className={`absolute top-1/2 -translate-y-1/2 h-6 rounded cursor-pointer hover:opacity-80 transition-opacity flex items-center px-2 ${isOverdue(task) ? 'ring-2 ring-red-500 ring-opacity-50' : ''
+                                        }`}
                                     style={{
                                         left: `${leftPercent}%`,
                                         width: `${widthPercent}%`,
@@ -172,7 +209,7 @@ export default function GanttChart({ tasks, colorBy, colors, onEdit, onColorChan
                                         backgroundColor: color
                                     }}
                                     onClick={() => onEdit(task)}
-                                    title={`${format(new Date(task.createdAt!), 'dd.MM.yyyy')} - ${format(new Date(task.dueDate!), 'dd.MM.yyyy')}`}
+                                    title={`${format(new Date(task.createdAt!), 'dd.MM.yyyy')} - ${format(new Date(task.dueDate!), 'dd.MM.yyyy')}${isOverdue(task) ? ' (ПРОСРОЧЕНО)' : ''}`}
                                 >
                                     <span className="text-white text-[10px] font-medium truncate">
                                         {task.client?.name || ''}
